@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum RoleType { Fighter, Tank, Dealer, Support, None } // “G‚ÍNone‚ğ‘z’è
 public enum FrontlineType { Front, Back, None } // ƒvƒŒƒCƒ„[ƒLƒƒƒ‰‚Ì‚İ—LŒøB“G‚ÍNone
 
 /// <summary>
@@ -11,7 +10,6 @@ public enum FrontlineType { Front, Back, None } // ƒvƒŒƒCƒ„[ƒLƒƒƒ‰‚Ì‚İ—LŒøB“G‚
 public class CharacterData : ScriptableObject
 {
     public string CharacterName;
-    public RoleType Role;
     public FrontlineType Frontline;
 
     public float BaseMaxHealth;
@@ -22,8 +20,7 @@ public class CharacterData : ScriptableObject
     public float BaseCriticalRate;
     public float BaseDrain;
 
-    public SkillDefinition NormalAttackDefinition;
-    public SkillDefinition ActiveSkillDefinition;
-    public List<PassiveSkillDefinition> PassiveSkills;
-    public List<SynergyTag> Tags;
+    public ActionDefinition NomalAttackDefinition;
+    public ActionDefinition ActiveSkillDefinition;
+    //public List<SynergyTag> Tags;
 }
