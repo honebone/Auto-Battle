@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+using System.Collections.Generic;
 public enum StatType
 {
     MaxHealth, AttackPower, MagicPower, AttackSpeed, CastSpeed, CriticalRate, Drain,
@@ -67,11 +67,28 @@ public class CharacterModel
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
+
+    /// <summary>
+    /// データ駆動用の行動
+    /// </summary>
+    /// <param name="targets"></param>
+    /// <param name="actionSource"></param>
+    /// <param name="actionDefinition"></param>
+    public void CreateActions(List<CharacterModel> targets,ActionSource actionSource,ActionDefinition actionDefinition)
+    {
+        targets.ForEach(target =>
+        {
+            ActionParams action = new ActionParams(this, target, actionSource, actionDefinition);
+            PerformAction(action);
+        });
+    }
+
     public void CreateNormalAttack()
     {
         CharacterModel target = null;//TODO:対象を持ってくる
         ActionParams action = new ActionParams(this, target, ActionSource.NormalAttack, Data.NomalAttackDefinition);
         //TODO これをどうするの
+       
     }
 
     public virtual void CreateActiveSkill()
@@ -79,5 +96,11 @@ public class CharacterModel
         CharacterModel target = null;//TODO:対象を持ってくる
         ActionParams action = new ActionParams(this, target, ActionSource.ActiveSkill, Data.ActiveSkillDefinition);
         //TODO これをどうするの
+    }
+
+    public void PerformAction(ActionParams actionParams)
+    {
+        //TODO:効果補正
+        //TODO:実行
     }
 }
