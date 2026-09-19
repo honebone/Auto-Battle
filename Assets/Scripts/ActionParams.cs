@@ -15,6 +15,7 @@ public struct ActionParams
     /// <summary>行動補正能力によって追加された効果</summary>
     public List<EffectParams> AdditionalEffects;
 
+    public bool canCRIT;
     /// <summary>与ダメージ増加(%)</summary>
     public float BonusAllDMG;
     public float BonusPhysicalDMG;
@@ -39,6 +40,8 @@ public struct ActionParams
         }
 
         AdditionalEffects = new List<EffectParams>();
+
+        canCRIT = source == ActionSource.NormalAttack;
 
         BonusAllDMG = 0;
         BonusPhysicalDMG = 0;
