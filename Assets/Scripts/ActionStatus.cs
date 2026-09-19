@@ -22,20 +22,20 @@ public struct ActionParams
     public float BonusHeal;
     public float BonusShield;
 
-    public ActionParams(CharacterModel owner, CharacterModel target, ActionSource source, ActionDefinition definition)
+    public ActionParams(CharacterModel owner, ActionSource source, CharacterModel target, List<EffectDefinition> effects)
     {
         Owner = owner;
-        Target = target;
         Source = source;
+        Target = target;
 
         Effects = new List<EffectParams>();
-        foreach(var action in definition.Actions)
+        foreach(var effect in effects)
         {
-            float value = action.ValueSource == BaseValueSource.FixedValue ? action.ValueRatio : owner.GetBaseValue(action.ValueSource) * action.ValueRatio / 100f;
-            EffectParams effect = new EffectParams(action.EffectType, value);
+            float value = effect.ValueSource == BaseValueSource.FixedValue ? effect.ValueRatio : owner.GetBaseValue(effect.ValueSource) * effect.ValueRatio / 100f;
+            EffectParams effectParams = new EffectParams(effect.EffectType, value);
 
             //TODO:èÛë‘àŸèÌÇ…ëŒâû
-            Effects.Add(effect);
+            Effects.Add(effectParams);
         }
 
         AdditionalEffects = new List<EffectParams>();

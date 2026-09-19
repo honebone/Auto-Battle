@@ -27,9 +27,12 @@ public class CharacterModel
     public int Shield => _shield;
     public float SP => _sp;
 
-    public CharacterModel(CharacterData data)
+    private IBattleField _battleField;
+
+    public CharacterModel(CharacterData data, IBattleField battleField)
     {
         Data = data;
+        _battleField = battleField;
 
         MaxHealth = new ClampedStatValue(data.BaseMaxHealth, 1);
         AttackPower = new StatValue(data.BaseAttackPower);
@@ -69,33 +72,28 @@ public class CharacterModel
 
 
     /// <summary>
-    /// データ駆動用の行動
+    /// ActionDefinitionをもとに自動で行動内容(ActionParams)を生成し実行
     /// </summary>
     /// <param name="targets"></param>
     /// <param name="actionSource"></param>
     /// <param name="actionDefinition"></param>
-    public void CreateActions(List<CharacterModel> targets,ActionSource actionSource,ActionDefinition actionDefinition)
+    public void PerformActionsFromDefinition(ActionSource actionSource, ActionDefinition actionDefinition)
     {
-        targets.ForEach(target =>
+        GetTargets(actionDefinition.TargetRule).ForEach(target =>
         {
-            ActionParams action = new ActionParams(this, target, actionSource, actionDefinition);
+            ActionParams action = new ActionParams(this, actionSource, target, actionDefinition.Effects);
             PerformAction(action);
         });
     }
 
-    public void CreateNormalAttack()
+    public void PerformNormalAttack()
     {
-        CharacterModel target = null;//TODO:対象を持ってくる
-        ActionParams action = new ActionParams(this, target, ActionSource.NormalAttack, Data.NomalAttackDefinition);
-        //TODO これをどうするの
-       
+        PerformActionsFromDefinition(ActionSource.NormalAttack, Data.NomalAttackDefinition);
     }
 
-    public virtual void CreateActiveSkill()
+    public virtual void PerformActiveSkill()
     {
-        CharacterModel target = null;//TODO:対象を持ってくる
-        ActionParams action = new ActionParams(this, target, ActionSource.ActiveSkill, Data.ActiveSkillDefinition);
-        //TODO これをどうするの
+        PerformActionsFromDefinition(ActionSource.ActiveSkill, Data.ActiveSkillDefinition);
     }
 
     public void PerformAction(ActionParams actionParams)
@@ -103,4 +101,6 @@ public class CharacterModel
         //TODO:効果補正
         //TODO:実行
     }
+
+    private protected List<CharacterModel> GetTargets(TargetRule targetRule) => _battleField.GetTargets(this, targetRule);
 }

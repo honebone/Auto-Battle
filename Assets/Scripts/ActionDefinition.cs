@@ -52,7 +52,7 @@ public enum BaseValueSource
 public class ActionDefinition
 {
     public TargetRule TargetRule;
-    public List<EffectSpecDefinition> Actions;
+    public List<EffectDefinition> Effects;
 }
 
 /// <summary>
@@ -60,7 +60,7 @@ public class ActionDefinition
 /// SO化はせず、各スキル定義に埋め込むシリアライズ可能なデータとして扱う。
 /// </summary>
 [Serializable]
-public class EffectSpecDefinition
+public class EffectDefinition
 {
     public EffectType EffectType;
     public BaseValueSource ValueSource;
