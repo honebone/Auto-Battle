@@ -3,8 +3,8 @@ using UnityEngine;
 
 public interface IBattleField
 {
-    List<CharacterModel> Players { get; }
-    List<CharacterModel> Enemies { get; }
+    IReadOnlyList<CharacterModel> Players { get; }
+    IReadOnlyList<CharacterModel> Enemies { get; }
 
-    List<CharacterModel> GetTargets(CharacterModel requester, TargetRule targetRule);
+    CharacterModel GetTarget(CharacterModel requester, TargetRule targetRule);
 }

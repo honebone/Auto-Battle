@@ -1,9 +1,19 @@
+using R3;
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 public enum StatType
 {
-    MaxHealth, AttackPower, MagicPower, AttackSpeed, CastSpeed, CriticalRate, Drain,
+    MaxHealth, AttackPower, MagicPower, AttackSpeed, CastSpeed, CriticalChance, Drain,
+}
+
+public struct CharaContext
+{
+    public bool IsPlayer;
+
+    /// <summary>手前から0</summary>
+    public int Position;
 }
 
 public class CharacterModel
@@ -15,21 +25,30 @@ public class CharacterModel
     public StatValue MagicPower { get; }
     public StatValue AttackSpeed { get; }
     public StatValue CastSpeed { get; }
-    public StatValue CriticalRate { get; }
+    public StatValue CriticalChance { get; }
     public StatValue Drain { get; }
 
-    public float CurrentHpRatio => _hp / MaxHealth.FloatValue;
-    private int _hp;
-    private int _shield;
-    private float _sp;
+    public float CurrentHpRatio => _hp.Value / MaxHealth.FloatValue;
+    public bool IsAlive => _hp.Value > 0;
 
-    public int HP => _hp;
-    public int Shield => _shield;
-    public float SP => _sp;
+    public ReadOnlyReactiveProperty<int> HP => _hp;
+    private readonly ReactiveProperty<int> _hp;
+    public ReadOnlyReactiveProperty<int> Shield => _shield;
+    private readonly ReactiveProperty<int> _shield;
+    public ReadOnlyReactiveProperty<float> AP => _ap;
+    private readonly ReactiveProperty<float> _ap;
+    //通常攻撃タイマー
+    public ReadOnlyReactiveProperty<float> NATimer => _naTimer;
+    private readonly ReactiveProperty<float> _naTimer;
+    public bool IsPlayer => _isPlayer;
+    private bool _isPlayer;
+    public int Position => _position;
+    private int _position;
 
     private IBattleField _battleField;
 
-    public CharacterModel(CharacterData data, IBattleField battleField)
+
+    public CharacterModel(CharacterData data, IBattleField battleField, CharaContext context)
     {
         Data = data;
         _battleField = battleField;
@@ -39,8 +58,15 @@ public class CharacterModel
         MagicPower = new StatValue(data.BaseMagicPower);
         AttackSpeed = new StatValue(data.BaseAttackSpeed);
         CastSpeed = new StatValue(data.BaseCastSpeed);
-        CriticalRate = new StatValue(data.BaseCriticalRate);
+        CriticalChance = new StatValue(data.BaseCriticalChance);
         Drain = new StatValue(data.BaseDrain);
+
+        _isPlayer = context.IsPlayer;
+        _position = context.Position;
+
+        _hp = new(MaxHealth.IntValue);
+        _shield = new(0);
+        _ap = new(0);
 
         //foreach (var passiveDefinition in data.PassiveSkills)
         //{
@@ -50,6 +76,75 @@ public class CharacterModel
         //}
     }
 
+    public void ManualUpdate(float deltaTime)
+    {
+        _naTimer.Value += deltaTime;
+        if(_naTimer.Value >= 1f / AttackSpeed.FloatValue)
+        {
+            _naTimer.Value -= 1f / AttackSpeed.FloatValue;
+            PerformNormalAttack();
+        }
+
+        _ap.Value += deltaTime;
+        if (_ap.Value >= 100)
+        {
+            _ap.Value -= 100;
+            PerformActiveSkill();
+        }
+    }
+
+    public void TakeDamage(int amount)
+    {
+        int remain = amount;
+        if (remain <= 0) return;
+
+        int hpDamage = 0;
+        int shieldDamage = 0;
+
+        shieldDamage = DamageShield(remain);
+        remain -= shieldDamage;
+        if (remain > 0) hpDamage = DamageHP(remain);
+    }
+
+    /// <summary>Shieldにダメージを与え、実際に減少した分を返す</summary>
+    private int DamageShield(int amount)
+    {
+        if (_shield.Value <= 0) return 0;
+
+        int shieldDMG = _shield.Value > amount ? amount : _shield.Value;
+        _shield.Value -= shieldDMG;
+
+        return shieldDMG;
+    }
+    /// <summary>HPにダメージを与え、実際に減少した分を返す</summary>
+    private int DamageHP(int amount)
+    {
+        if (amount <= 0 || _hp.Value <= 0) return 0;
+
+        int hpDMG = _hp.Value > amount ? amount : _hp.Value;
+        _hp.Value -= hpDMG;
+
+        if (_hp.Value <= 0)
+        {
+            //死亡
+        }
+
+        return hpDMG;
+    }
+
+    public void Heal(int amount)
+    {
+        int heal = Mathf.Min(amount, MaxHealth.IntValue - _hp.Value);
+        _hp.Value += heal;
+    }
+    public void GrantShield(int amount)
+    {
+        int shield = Mathf.Min(amount, MaxHealth.IntValue - _shield.Value);
+        _shield.Value += shield;
+    }
+
+    public void ChangeAP(float amount) { _ap.Value += amount; }
+
     public StatValue GetStat(StatType type) => type switch
     {
         StatType.MaxHealth => MaxHealth,
@@ -57,7 +152,7 @@ public class CharacterModel
         StatType.MagicPower => MagicPower,
         StatType.AttackSpeed => AttackSpeed,
         StatType.CastSpeed => CastSpeed,
-        StatType.CriticalRate => CriticalRate,
+        StatType.CriticalChance => CriticalChance,
         StatType.Drain => Drain,
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
@@ -79,11 +174,8 @@ public class CharacterModel
     /// <param name="actionDefinition"></param>
     public void PerformActionsFromDefinition(ActionSource actionSource, ActionDefinition actionDefinition)
     {
-        GetTargets(actionDefinition.TargetRule).ForEach(target =>
-        {
-            ActionParams action = new ActionParams(this, actionSource, target, actionDefinition.Effects);
-            PerformAction(action);
-        });
+        ActionParams action = new ActionParams(this, actionSource, GetTarget(actionDefinition.TargetRule), actionDefinition.Effects);
+        PerformAction(action);
     }
 
     public void PerformNormalAttack()
@@ -102,5 +194,5 @@ public class CharacterModel
         //TODO:実行
     }
 
-    private protected List<CharacterModel> GetTargets(TargetRule targetRule) => _battleField.GetTargets(this, targetRule);
+    private protected CharacterModel GetTarget(TargetRule targetRule) => _battleField.GetTarget(this, targetRule);
 }

@@ -16,15 +16,13 @@ public enum EffectType
 
 public enum TargetRule
 {
-    FrontEnemy,
-    BackEnemy,
-    AllEnemies,
-    RandomEnemy,
-    WeakestEnemy,
+    FrontOpponent,
+    BackOpponent,
+    RandomOpponent,
+    WeakestOpponent,
 
     FrontAlly,
     BackAlly,
-    AllAllies,
     RandomAlly,
     WeakestAlly,
 
