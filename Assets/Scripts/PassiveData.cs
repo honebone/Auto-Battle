@@ -64,6 +64,8 @@ public class PassiveData : ScriptableObject
     //public bool ObserverSomeone;
     //[ShowIf(nameof(ObserverSomeone))]
     public TriggerObserveTargetType ObserveTargetType;
+    [Header("行動の発動者をチェックするか")]
+    public bool ObserveActionOwner;
     public ActionDefinition ActionDefinition;
 
     public virtual PassiveModel CreateModel(CharacterModel owner, IBattleField battleField) { return new PassiveModel(owner, this, battleField); }

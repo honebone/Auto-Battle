@@ -16,7 +16,7 @@ public class PassiveModel
     public void Init()
     {
         ApplyStatusModifier(true);
-        //if (_data.AutoSubscribe) _owner.TriggerPassiveAction += TriggerActionFromDefinition;
+        if (_data.AutoSubscribe) _battleField.TriggerAction += TriggerActionFromDefinition;
     }
 
     public void ManualUpdate(float deltaTime)
@@ -33,7 +33,7 @@ public class PassiveModel
     public void Disable()
     {
         ApplyStatusModifier(false);
-        //if (_data.AutoSubscribe) _owner.TriggerPassiveAction -= TriggerActionFromDefinition;
+        if (_data.AutoSubscribe) _battleField.TriggerAction -= TriggerActionFromDefinition;
     }
 
     private void ApplyStatusModifier(bool set)

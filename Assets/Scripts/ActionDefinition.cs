@@ -6,8 +6,7 @@ using System.Collections.Generic;
 
 public enum EffectType
 {
-    PhysicalAttack,   // •¨—UŒ‚(UŒ‚—ÍˆË‘¶)
-    MagicAttack,       // –‚–@UŒ‚(–‚—ÍˆË‘¶)
+    Attack,             // UŒ‚
     Heal,               // ‰ñ•œ
     ShieldGrant,        // ƒV[ƒ‹ƒh•t—^
     SpChange,           // SP‘‰Á/Œ¸­

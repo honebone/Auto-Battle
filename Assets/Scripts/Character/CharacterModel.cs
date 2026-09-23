@@ -93,10 +93,12 @@ public class CharacterModel
         }
     }
 
-    public Vector2Int TakeDamage(int amount)
+    
+
+    public DamageResult TakeDamage(int amount)
     {
         int remain = amount;
-        if (remain <= 0) return Vector2Int.zero;
+        if (remain <= 0) return new DamageResult(0, 0, false);
 
         int hpDamage = 0;
         int shieldDamage = 0;
@@ -105,7 +107,7 @@ public class CharacterModel
         remain -= shieldDamage;
         if (remain > 0) hpDamage = DamageHP(remain);
 
-        return new Vector2Int(hpDamage, shieldDamage);
+        return new DamageResult(hpDamage, shieldDamage, IsAlive);
     }
 
     /// <summary>Shieldにダメージを与え、実際に減少した分を返す</summary>
@@ -203,8 +205,7 @@ public class CharacterModel
     {
         //TODO:効果補正
         CharacterModel target = actionParams.Target;
-        Vector2Int physicalDMG = Vector2Int.zero;
-        Vector2Int magicDMG = Vector2Int.zero;
+        DamageResult damageResult = new DamageResult(0, 0, false);
         Vector2Int heal = Vector2Int.zero;
         int shield = 0;
         float ap = 0;
@@ -218,11 +219,8 @@ public class CharacterModel
 
             switch (effect.EffectType)
             {
-                case EffectType.PhysicalAttack://TODO:クリティカルによるダメージ量補正
-                    physicalDMG += target.TakeDamage(value.Mul(actionParams.BonusAllDMG + actionParams.BonusPhysicalDMG).ToInt());
-                    break;
-                case EffectType.MagicAttack:
-                    magicDMG += target.TakeDamage(value.Mul(actionParams.BonusAllDMG + actionParams.BonusMagicDMG).ToInt());
+                case EffectType.Attack://TODO:クリティカルによるダメージ量補正
+                    damageResult = target.TakeDamage(value.Mul(actionParams.BonusAllDMG + actionParams.BonusPhysicalDMG).ToInt());
                     break;
                 case EffectType.Heal:
                     heal += target.Heal(value.Mul(actionParams.BonusHeal).ToInt());
@@ -239,19 +237,59 @@ public class CharacterModel
             }
         }
 
-        return new ActionResult(
+        ActionResult result = new ActionResult(
             actionParams.Owner,
             target,
             actionParams.Source,
-            physicalDMG,
-            magicDMG,
+            damageResult,
             isCritical,
             heal.x,
             heal.y,
             shield);
+
+        if (result.ActionSource == ActionSource.NormalAttack) _battleField.InvokeTriggerAction(TriggerType.OnNormalAttackDealt, result);
+        if (result.ActionSource == ActionSource.ActiveSkill) _battleField.InvokeTriggerAction(TriggerType.OnActiveSkillCast, result);
+
+        if (result.DealtDamage())
+        {
+            _battleField.InvokeTriggerAction(TriggerType.OnDamageDealt, result);
+            _battleField.InvokeTriggerAction(TriggerType.OnDamageReceived, result);
+        }
+
+        if (result.Healed())
+        {
+            _battleField.InvokeTriggerAction(TriggerType.OnHealDealt, result);
+            _battleField.InvokeTriggerAction(TriggerType.OnHealReceived, result);
+        }
+
+        if(result.Shield > 0)
+        {
+            _battleField.InvokeTriggerAction(TriggerType.OnShieldGranted, result);
+            _battleField.InvokeTriggerAction(TriggerType.OnShieldReceived, result);
+        }
+
+        //TODO:状態異常付与時
+
+        //TODO:殺害時
+
+        return result;
     }
 
     private protected CharacterModel GetTarget(TargetRule targetRule) => _battleField.GetTarget(this, targetRule);
+}
+
+public struct DamageResult
+{
+    public int HPDMG;
+    public int ShieldDMG;
+    public bool Killed;
+
+    public DamageResult(int hpDMG, int shieldDMG, bool killed)
+    {
+        HPDMG = hpDMG;
+        ShieldDMG = shieldDMG;
+        Killed = killed;
+    }
 }
 
 public struct ActionResult
@@ -261,9 +299,9 @@ public struct ActionResult
     public ActionSource ActionSource;
 
     /// <summary>x:hpDMG y:shieldDMG</summary>
-    public Vector2Int PhysicalDMG;
-    /// <summary>x:hpDMG y:shieldDMG</summary>
-    public Vector2Int MagicDMG;
+    public int HPDMG;
+    public int ShieldDMG;
+    public bool Killed;
     public bool IsCritical;
     public int Heal;
     public int OverHeal;
@@ -274,8 +312,7 @@ public struct ActionResult
         CharacterModel owner,
         CharacterModel target,
         ActionSource actionSource,
-        Vector2Int physicalDMG,
-        Vector2Int magicDMG,
+        DamageResult damageResult,
         bool isCritical,
         int heal,
         int overHeal,
@@ -284,11 +321,15 @@ public struct ActionResult
         Owner = owner;
         Target = target;
         ActionSource = actionSource;
-        PhysicalDMG = physicalDMG;
-        MagicDMG = magicDMG;
+        HPDMG = damageResult.HPDMG;
+        ShieldDMG = damageResult.ShieldDMG;
+        Killed = damageResult.Killed;
         IsCritical = isCritical;
         Heal = heal;
         OverHeal = overHeal;
         Shield = shield;
     }
+
+    public bool DealtDamage() => HPDMG > 0 || ShieldDMG > 0;
+    public bool Healed() => Heal > 0 || OverHeal > 0;
 }

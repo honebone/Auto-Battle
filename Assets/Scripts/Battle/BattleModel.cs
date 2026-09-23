@@ -9,11 +9,17 @@ public class BattleModel : IBattleField
     private List<CharacterModel> _enemies = new List<CharacterModel>();
     public IReadOnlyList<CharacterModel> Players => _players;
     public IReadOnlyList<CharacterModel> Enemies => _enemies;
+    public event Action<TriggerType, ActionResult> TriggerAction;
 
     public void ManualUpdate(float deltaTime)
     {
         _players.ForEach(player => player.ManualUpdate(deltaTime));
         _enemies.ForEach(enemy => enemy.ManualUpdate(deltaTime));
+    }
+
+    public void InvokeTriggerAction(TriggerType triggerType,ActionResult actionResult)
+    {
+        TriggerAction?.Invoke(triggerType, actionResult);
     }
 
     public CharacterModel GetTarget(CharacterModel requester, TargetRule targetRule)
