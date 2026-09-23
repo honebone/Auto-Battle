@@ -22,5 +22,7 @@ public class CharacterData : ScriptableObject
 
     public ActionDefinition NomalAttackDefinition;
     public ActionDefinition ActiveSkillDefinition;
+
+    public PassiveData PassiveSkillData;
     //public List<SynergyTag> Tags;
 }

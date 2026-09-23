@@ -48,4 +48,27 @@ public class BattleModel : IBattleField
 
         return alive[UnityEngine.Random.Range(0, alive.Count)];
     }
+
+    public bool CheckObserveTarget(CharacterModel requester, ActionResult actionResult,TriggerType triggerType, TriggerObserveTargetType observeTargetType)
+    {
+        if (triggerType == TriggerType.NoAction) return true;
+        CharacterModel checkTarget = triggerType == TriggerType.Active ? actionResult.Owner : 
+                                     triggerType == TriggerType.Passive ? actionResult.Target : null;
+
+        if(checkTarget == null)
+        {
+            Debug.LogWarning($"triggerType {triggerType} のチェック対象未定義");
+            return false;
+        }
+
+        return observeTargetType switch
+        {
+            TriggerObserveTargetType.Self => checkTarget == requester,
+            TriggerObserveTargetType.Anyone => true,
+            TriggerObserveTargetType.AnyAllies => checkTarget.IsPlayer == requester.IsPlayer,
+            TriggerObserveTargetType.OtherAlly => checkTarget != requester && checkTarget.IsPlayer == requester.IsPlayer,
+            TriggerObserveTargetType.AnyOpponents => checkTarget.IsPlayer != requester.IsPlayer,
+            _ => throw new ArgumentOutOfRangeException(nameof(observeTargetType)),
+        };
+    }
 }

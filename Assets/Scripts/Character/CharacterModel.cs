@@ -40,13 +40,13 @@ public class CharacterModel
     //通常攻撃タイマー
     public ReadOnlyReactiveProperty<float> NATimer => _naTimer;
     private readonly ReactiveProperty<float> _naTimer;
+
     public bool IsPlayer => _isPlayer;
     private bool _isPlayer;
     public int Position => _position;
     private int _position;
 
     private IBattleField _battleField;
-
 
     public CharacterModel(CharacterData data, IBattleField battleField, CharaContext context)
     {
@@ -93,10 +93,10 @@ public class CharacterModel
         }
     }
 
-    public void TakeDamage(int amount)
+    public Vector2Int TakeDamage(int amount)
     {
         int remain = amount;
-        if (remain <= 0) return;
+        if (remain <= 0) return Vector2Int.zero;
 
         int hpDamage = 0;
         int shieldDamage = 0;
@@ -104,6 +104,8 @@ public class CharacterModel
         shieldDamage = DamageShield(remain);
         remain -= shieldDamage;
         if (remain > 0) hpDamage = DamageHP(remain);
+
+        return new Vector2Int(hpDamage, shieldDamage);
     }
 
     /// <summary>Shieldにダメージを与え、実際に減少した分を返す</summary>
@@ -132,18 +134,27 @@ public class CharacterModel
         return hpDMG;
     }
 
-    public void Heal(int amount)
+    public Vector2Int Heal(int amount)
     {
         int heal = Mathf.Min(amount, MaxHealth.IntValue - _hp.Value);
+        int overHeal = amount - heal;
         _hp.Value += heal;
+
+        return new Vector2Int(heal,overHeal);
     }
-    public void GrantShield(int amount)
+    public int GrantShield(int amount)
     {
         int shield = Mathf.Min(amount, MaxHealth.IntValue - _shield.Value);
         _shield.Value += shield;
+
+        return shield;
     }
 
-    public void ChangeAP(float amount) { _ap.Value += amount; }
+    public float ChangeAP(float amount)
+    {
+        _ap.Value += amount;
+        return amount;
+    }
 
     public StatValue GetStat(StatType type) => type switch
     {
@@ -188,11 +199,96 @@ public class CharacterModel
         PerformActionsFromDefinition(ActionSource.ActiveSkill, Data.ActiveSkillDefinition);
     }
 
-    public void PerformAction(ActionParams actionParams)
+    public ActionResult PerformAction(ActionParams actionParams)
     {
         //TODO:効果補正
-        //TODO:実行
+        CharacterModel target = actionParams.Target;
+        Vector2Int physicalDMG = Vector2Int.zero;
+        Vector2Int magicDMG = Vector2Int.zero;
+        Vector2Int heal = Vector2Int.zero;
+        int shield = 0;
+        float ap = 0;
+        //TODO:付与した状態異常を記録
+
+        //TODO:クリティカル判定
+        bool isCritical = false;
+        foreach (var effect in actionParams.Effects)
+        {
+            float value = effect.Value;
+
+            switch (effect.EffectType)
+            {
+                case EffectType.PhysicalAttack://TODO:クリティカルによるダメージ量補正
+                    physicalDMG += target.TakeDamage(value.Mul(actionParams.BonusAllDMG + actionParams.BonusPhysicalDMG).ToInt());
+                    break;
+                case EffectType.MagicAttack:
+                    magicDMG += target.TakeDamage(value.Mul(actionParams.BonusAllDMG + actionParams.BonusMagicDMG).ToInt());
+                    break;
+                case EffectType.Heal:
+                    heal += target.Heal(value.Mul(actionParams.BonusHeal).ToInt());
+                    break;
+                case EffectType.ShieldGrant:
+                    shield += target.GrantShield(value.Mul(actionParams.BonusShield).ToInt());
+                    break;
+                case EffectType.SpChange:
+                    ap += target.ChangeAP(effect.Value);
+                    break;
+                case EffectType.StatusEffectApply:
+                    Debug.Log("状態異常付与は未実装");
+                    break;
+            }
+        }
+
+        return new ActionResult(
+            actionParams.Owner,
+            target,
+            actionParams.Source,
+            physicalDMG,
+            magicDMG,
+            isCritical,
+            heal.x,
+            heal.y,
+            shield);
     }
 
     private protected CharacterModel GetTarget(TargetRule targetRule) => _battleField.GetTarget(this, targetRule);
+}
+
+public struct ActionResult
+{
+    public CharacterModel Owner;
+    public CharacterModel Target;
+    public ActionSource ActionSource;
+
+    /// <summary>x:hpDMG y:shieldDMG</summary>
+    public Vector2Int PhysicalDMG;
+    /// <summary>x:hpDMG y:shieldDMG</summary>
+    public Vector2Int MagicDMG;
+    public bool IsCritical;
+    public int Heal;
+    public int OverHeal;
+    public int Shield;
+    //TODO:付与した状態異常を記録
+
+    public ActionResult(
+        CharacterModel owner,
+        CharacterModel target,
+        ActionSource actionSource,
+        Vector2Int physicalDMG,
+        Vector2Int magicDMG,
+        bool isCritical,
+        int heal,
+        int overHeal,
+        int shield)
+    {
+        Owner = owner;
+        Target = target;
+        ActionSource = actionSource;
+        PhysicalDMG = physicalDMG;
+        MagicDMG = magicDMG;
+        IsCritical = isCritical;
+        Heal = heal;
+        OverHeal = overHeal;
+        Shield = shield;
+    }
 }
