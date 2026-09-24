@@ -10,6 +10,8 @@ public interface IBattleField
 
     CharacterModel GetTarget(CharacterModel requester, TargetRule targetRule);
 
-    bool CheckObserveTarget(CharacterModel requester, ActionResult actionResult, TriggerType triggerType, TriggerObserveTargetType observeTargetType);
+    bool CheckObserveTarget(CharacterModel requester, ActionResult actionResult, TriggerType triggerType, TriggerObserveTargetType observeTargetType, bool observeActionOwner);
     void InvokeTriggerAction(TriggerType triggerType, ActionResult actionResult);
+    /// <summary>行動が解決されたことを通知する(ログ・統計用)</summary>
+    void NotifyActionPerformed(ActionResult actionResult);
 }

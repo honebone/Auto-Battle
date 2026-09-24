@@ -1,4 +1,4 @@
-using R3;
+ï»¿using R3;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +12,7 @@ public struct CharaContext
 {
     public bool IsPlayer;
 
-    /// <summary>è‘O‚©‚ç0</summary>
+    /// <summary>æ‰‹å‰ã‹ã‚‰0</summary>
     public int Position;
 }
 
@@ -26,6 +26,7 @@ public class CharacterModel
     public StatValue AttackSpeed { get; }
     public StatValue CastSpeed { get; }
     public StatValue CriticalChance { get; }
+    public StatValue CriticalDamage { get; }
     public StatValue Drain { get; }
 
     public float CurrentHpRatio => _hp.Value / MaxHealth.FloatValue;
@@ -37,7 +38,7 @@ public class CharacterModel
     private readonly ReactiveProperty<int> _shield;
     public ReadOnlyReactiveProperty<float> AP => _ap;
     private readonly ReactiveProperty<float> _ap;
-    //’ÊíUŒ‚ƒ^ƒCƒ}[
+    //é€šå¸¸æ”»æ’ƒã‚¿ã‚¤ãƒãƒ¼
     public ReadOnlyReactiveProperty<float> NATimer => _naTimer;
     private readonly ReactiveProperty<float> _naTimer;
 
@@ -46,7 +47,12 @@ public class CharacterModel
     public int Position => _position;
     private int _position;
 
+    /// <summary>ãƒ­ã‚°è¡¨ç¤ºç”¨ã®åå‰ ä¾‹:[På‰]é¨å£«</summary>
+    public string DisplayName => $"[{(_isPlayer ? "P" : "E")}{(_position == 0 ? "å‰" : "å¾Œ")}]{Data.CharacterName}";
+
     private IBattleField _battleField;
+    private PassiveModel _passiveSkill;
+    //TODO:ã‚¢ã‚¤ãƒ†ãƒ ã€çŠ¶æ…‹ç•°å¸¸ã®PassiveModelã®ç®¡ç†
 
     public CharacterModel(CharacterData data, IBattleField battleField, CharaContext context)
     {
@@ -58,7 +64,8 @@ public class CharacterModel
         MagicPower = new StatValue(data.BaseMagicPower);
         AttackSpeed = new StatValue(data.BaseAttackSpeed);
         CastSpeed = new StatValue(data.BaseCastSpeed);
-        CriticalChance = new StatValue(data.BaseCriticalChance);
+        CriticalChance = new StatValue(Database.Instance.BaseCriticalChance);
+        CriticalDamage = new StatValue(Database.Instance.BaseCriticalDamageRate);
         Drain = new StatValue(data.BaseDrain);
 
         _isPlayer = context.IsPlayer;
@@ -67,38 +74,69 @@ public class CharacterModel
         _hp = new(MaxHealth.IntValue);
         _shield = new(0);
         _ap = new(0);
+        _naTimer = new(0);
 
-        //foreach (var passiveDefinition in data.PassiveSkills)
-        //{
-        //    var instance = passiveDefinition.CreateInstance();
-        //    instance.Initialize(this);
-        //    _passives.Add(instance);
-        //}
+        if (data.PassiveSkillData != null)
+        {
+            _passiveSkill = data.PassiveSkillData.CreateModel(this, battleField);
+        }
+    }
+
+    /// <summary>
+    /// æˆ¦é—˜é–‹å§‹æ™‚ã®åˆæœŸåŒ–ã€‚ãƒ‘ãƒƒã‚·ãƒ–ã®è£œæ­£ã‚’åæ˜ ã—ãŸå¾Œã«HPç­‰ã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹
+    /// </summary>
+    public void InitBattle()
+    {
+        _passiveSkill?.Init();
+
+        _hp.Value = MaxHealth.IntValue;
+        _shield.Value = 0;
+        _ap.Value = 0;
+        _naTimer.Value = 0;
+    }
+
+    /// <summary>
+    /// æˆ¦é—˜çµ‚äº†æ™‚ã®å¾Œå‡¦ç†ã€‚ãƒ‘ãƒƒã‚·ãƒ–ã®è£œæ­£ãƒ»è³¼èª­ã‚’è§£é™¤ã™ã‚‹
+    /// </summary>
+    public void EndBattle()
+    {
+        _passiveSkill?.Disable();
     }
 
     public void ManualUpdate(float deltaTime)
     {
+        if (!IsAlive) return;
+
         _naTimer.Value += deltaTime;
-        if(_naTimer.Value >= 1f / AttackSpeed.FloatValue)
+        if (_naTimer.Value >= 1f / AttackSpeed.FloatValue)
         {
             _naTimer.Value -= 1f / AttackSpeed.FloatValue;
             PerformNormalAttack();
         }
 
-        _ap.Value += deltaTime;
+        if (!IsAlive) return;
+
+        _ap.Value += CastSpeed.FloatValue * deltaTime;
         if (_ap.Value >= 100)
         {
             _ap.Value -= 100;
             PerformActiveSkill();
         }
+
+        //TODO:ã‚·ãƒ¼ãƒ«ãƒ‰ã®è‡ªç„¶ç¾è±¡
+
+        _passiveSkill?.ManualUpdate(deltaTime);
+        //TODO:ã‚¢ã‚¤ãƒ†ãƒ ã€çŠ¶æ…‹ç•°å¸¸ã®PassiveModelã®ManualUpdate
     }
 
-    
+
 
     public DamageResult TakeDamage(int amount)
     {
         int remain = amount;
         if (remain <= 0) return new DamageResult(0, 0, false);
+
+        bool wasAlive = IsAlive;
 
         int hpDamage = 0;
         int shieldDamage = 0;
@@ -107,10 +145,10 @@ public class CharacterModel
         remain -= shieldDamage;
         if (remain > 0) hpDamage = DamageHP(remain);
 
-        return new DamageResult(hpDamage, shieldDamage, IsAlive);
+        return new DamageResult(hpDamage, shieldDamage, wasAlive && !IsAlive);
     }
 
-    /// <summary>Shield‚Éƒ_ƒ[ƒW‚ğ—^‚¦AÀÛ‚ÉŒ¸­‚µ‚½•ª‚ğ•Ô‚·</summary>
+    /// <summary>Shieldã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã€å®Ÿéš›ã«æ¸›å°‘ã—ãŸåˆ†ã‚’è¿”ã™</summary>
     private int DamageShield(int amount)
     {
         if (_shield.Value <= 0) return 0;
@@ -120,7 +158,7 @@ public class CharacterModel
 
         return shieldDMG;
     }
-    /// <summary>HP‚Éƒ_ƒ[ƒW‚ğ—^‚¦AÀÛ‚ÉŒ¸­‚µ‚½•ª‚ğ•Ô‚·</summary>
+    /// <summary>HPã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã€å®Ÿéš›ã«æ¸›å°‘ã—ãŸåˆ†ã‚’è¿”ã™</summary>
     private int DamageHP(int amount)
     {
         if (amount <= 0 || _hp.Value <= 0) return 0;
@@ -130,7 +168,7 @@ public class CharacterModel
 
         if (_hp.Value <= 0)
         {
-            //€–S
+            //æ­»äº¡
         }
 
         return hpDMG;
@@ -142,7 +180,7 @@ public class CharacterModel
         int overHeal = amount - heal;
         _hp.Value += heal;
 
-        return new Vector2Int(heal,overHeal);
+        return new Vector2Int(heal, overHeal);
     }
     public int GrantShield(int amount)
     {
@@ -180,14 +218,19 @@ public class CharacterModel
 
 
     /// <summary>
-    /// ActionDefinition‚ğ‚à‚Æ‚É©“®‚Ås“®“à—e(ActionParams)‚ğ¶¬‚µÀs
+    /// ActionDefinitionã‚’ã‚‚ã¨ã«è‡ªå‹•ã§è¡Œå‹•å†…å®¹(ActionParams)ã‚’ç”Ÿæˆã—å®Ÿè¡Œ
     /// </summary>
     /// <param name="targets"></param>
     /// <param name="actionSource"></param>
     /// <param name="actionDefinition"></param>
     public void PerformActionsFromDefinition(ActionSource actionSource, ActionDefinition actionDefinition)
     {
-        ActionParams action = new ActionParams(this, actionSource, GetTarget(actionDefinition.TargetRule), actionDefinition.Effects);
+        if (actionDefinition?.Effects == null || actionDefinition.Effects.Count == 0) return;
+
+        CharacterModel target = GetTarget(actionDefinition.TargetRule);
+        if (target == null) return;//å¯¾è±¡ãŒå­˜åœ¨ã—ãªã„(ç›¸æ‰‹ãŒå…¨æ»…ã—ã¦ã„ã‚‹ç­‰)å ´åˆã¯è¡Œå‹•ã—ãªã„
+
+        ActionParams action = new ActionParams(this, actionSource, target, actionDefinition.Effects);
         PerformAction(action);
     }
 
@@ -203,15 +246,15 @@ public class CharacterModel
 
     public ActionResult PerformAction(ActionParams actionParams)
     {
-        //TODO:Œø‰Ê•â³
+        //TODO:åŠ¹æœè£œæ­£
         CharacterModel target = actionParams.Target;
         DamageResult damageResult = new DamageResult(0, 0, false);
         Vector2Int heal = Vector2Int.zero;
         int shield = 0;
         float ap = 0;
-        //TODO:•t—^‚µ‚½ó‘ÔˆÙí‚ğ‹L˜^
+        //TODO:ä»˜ä¸ã—ãŸçŠ¶æ…‹ç•°å¸¸ã‚’è¨˜éŒ²
 
-        //TODO:ƒNƒŠƒeƒBƒJƒ‹”»’è
+        //TODO:ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«åˆ¤å®š
         bool isCritical = false;
         foreach (var effect in actionParams.Effects)
         {
@@ -219,20 +262,23 @@ public class CharacterModel
 
             switch (effect.EffectType)
             {
-                case EffectType.Attack://TODO:ƒNƒŠƒeƒBƒJƒ‹‚É‚æ‚éƒ_ƒ[ƒW—Ê•â³
-                    damageResult = target.TakeDamage(value.Mul(actionParams.BonusAllDMG + actionParams.BonusPhysicalDMG).ToInt());
+                case EffectType.Attack://TODO:ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒ«ã«ã‚ˆã‚‹ãƒ€ãƒ¡ãƒ¼ã‚¸é‡è£œæ­£
+                    DamageResult dmg = target.TakeDamage((value * (1f + actionParams.BonusDMG)).ToInt());
+                    damageResult.HPDMG += dmg.HPDMG;
+                    damageResult.ShieldDMG += dmg.ShieldDMG;
+                    damageResult.Killed |= dmg.Killed;
                     break;
                 case EffectType.Heal:
-                    heal += target.Heal(value.Mul(actionParams.BonusHeal).ToInt());
+                    heal += target.Heal((value * (1f + actionParams.BonusHeal)).ToInt());
                     break;
                 case EffectType.ShieldGrant:
-                    shield += target.GrantShield(value.Mul(actionParams.BonusShield).ToInt());
+                    shield += target.GrantShield((value * (1f + actionParams.BonusShield)).ToInt());
                     break;
                 case EffectType.SpChange:
                     ap += target.ChangeAP(effect.Value);
                     break;
                 case EffectType.StatusEffectApply:
-                    Debug.Log("ó‘ÔˆÙí•t—^‚Í–¢À‘•");
+                    Debug.Log("çŠ¶æ…‹ç•°å¸¸ä»˜ä¸ã¯æœªå®Ÿè£…");
                     break;
             }
         }
@@ -245,32 +291,19 @@ public class CharacterModel
             isCritical,
             heal.x,
             heal.y,
-            shield);
+            shield,
+            ap);
+
+        _battleField.NotifyActionPerformed(result);
 
         if (result.ActionSource == ActionSource.NormalAttack) _battleField.InvokeTriggerAction(TriggerType.OnNormalAttackDealt, result);
         if (result.ActionSource == ActionSource.ActiveSkill) _battleField.InvokeTriggerAction(TriggerType.OnActiveSkillCast, result);
+        if (result.DealtDamage()) _battleField.InvokeTriggerAction(TriggerType.OnDamageDealt, result);
+        if (result.Healed()) _battleField.InvokeTriggerAction(TriggerType.OnHealDealt, result);
+        if (result.Shield > 0) _battleField.InvokeTriggerAction(TriggerType.OnShieldGranted, result);
+        //TODO:çŠ¶æ…‹ç•°å¸¸ä»˜ä¸æ™‚
+        if (result.Killed) _battleField.InvokeTriggerAction(TriggerType.OnKilled, result);
 
-        if (result.DealtDamage())
-        {
-            _battleField.InvokeTriggerAction(TriggerType.OnDamageDealt, result);
-            _battleField.InvokeTriggerAction(TriggerType.OnDamageReceived, result);
-        }
-
-        if (result.Healed())
-        {
-            _battleField.InvokeTriggerAction(TriggerType.OnHealDealt, result);
-            _battleField.InvokeTriggerAction(TriggerType.OnHealReceived, result);
-        }
-
-        if(result.Shield > 0)
-        {
-            _battleField.InvokeTriggerAction(TriggerType.OnShieldGranted, result);
-            _battleField.InvokeTriggerAction(TriggerType.OnShieldReceived, result);
-        }
-
-        //TODO:ó‘ÔˆÙí•t—^
-
-        //TODO:EŠQ
 
         return result;
     }
@@ -306,7 +339,8 @@ public struct ActionResult
     public int Heal;
     public int OverHeal;
     public int Shield;
-    //TODO:•t—^‚µ‚½ó‘ÔˆÙí‚ğ‹L˜^
+    public float AP;
+    //TODO:ä»˜ä¸ã—ãŸçŠ¶æ…‹ç•°å¸¸ã‚’è¨˜éŒ²
 
     public ActionResult(
         CharacterModel owner,
@@ -316,7 +350,8 @@ public struct ActionResult
         bool isCritical,
         int heal,
         int overHeal,
-        int shield)
+        int shield,
+        float ap)
     {
         Owner = owner;
         Target = target;
@@ -328,6 +363,7 @@ public struct ActionResult
         Heal = heal;
         OverHeal = overHeal;
         Shield = shield;
+        AP = ap;
     }
 
     public bool DealtDamage() => HPDMG > 0 || ShieldDMG > 0;

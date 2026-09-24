@@ -3,23 +3,110 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
+public enum BattleResult
+{
+    InProgress,
+    PlayerWin,
+    /// <summary>プレイヤー全滅(相討ちを含む)</summary>
+    PlayerLose,
+    /// <summary>制限時間切れ(プレイヤーの敗北扱い)</summary>
+    TimeUp,
+}
+
 public class BattleModel : IBattleField
 {
+    public const float DefaultTimeLimit = 60f;
+
     private List<CharacterModel> _players = new List<CharacterModel>();
     private List<CharacterModel> _enemies = new List<CharacterModel>();
     public IReadOnlyList<CharacterModel> Players => _players;
     public IReadOnlyList<CharacterModel> Enemies => _enemies;
     public event Action<TriggerType, ActionResult> TriggerAction;
 
+    /// <summary>行動が解決されるたびに通知(ログ・統計用)</summary>
+    public event Action<ActionResult> ActionPerformed;
+    public event Action BattleStarted;
+    public event Action<BattleResult> BattleEnded;
+
+    public float TimeLimit { get; }
+    public float ElapsedTime { get; private set; }
+    public BattleResult Result { get; private set; } = BattleResult.InProgress;
+    public bool IsStarted { get; private set; }
+    public bool IsFinished => Result != BattleResult.InProgress;
+
+    public BattleModel(float timeLimit = DefaultTimeLimit)
+    {
+        TimeLimit = timeLimit;
+    }
+
+    /// <summary>
+    /// 指定した陣営に前衛・後衛のキャラクターをセットする(既存のキャラクターは置き換え)
+    /// </summary>
+    public void SetCharacters(bool isPlayer, CharacterData front, CharacterData back)
+    {
+        List<CharacterModel> team = isPlayer ? _players : _enemies;
+        team.Clear();
+
+        //GetTargetはリスト順を前衛優先として扱うため、前衛→後衛の順に追加する
+        if (front != null) team.Add(new CharacterModel(front, this, new CharaContext { IsPlayer = isPlayer, Position = 0 }));
+        if (back != null) team.Add(new CharacterModel(back, this, new CharaContext { IsPlayer = isPlayer, Position = 1 }));
+    }
+
+    public void StartBattle()
+    {
+        ElapsedTime = 0;
+        Result = BattleResult.InProgress;
+        IsStarted = true;
+
+        _players.ForEach(player => player.InitBattle());
+        _enemies.ForEach(enemy => enemy.InitBattle());
+
+        BattleStarted?.Invoke();
+        InvokeTriggerAction(TriggerType.CombatStart, default);
+
+        CheckResult();
+    }
+
     public void ManualUpdate(float deltaTime)
     {
+        if (!IsStarted || IsFinished) return;
+
+        ElapsedTime += deltaTime;
         _players.ForEach(player => player.ManualUpdate(deltaTime));
         _enemies.ForEach(enemy => enemy.ManualUpdate(deltaTime));
+
+        CheckResult();
+    }
+
+    /// <summary>
+    /// 勝敗判定。両陣営同時の全滅(相討ち)はプレイヤーの敗北
+    /// </summary>
+    private void CheckResult()
+    {
+        if (IsFinished) return;
+
+        bool playersDefeated = _players.All(c => !c.IsAlive);
+        bool enemiesDefeated = _enemies.All(c => !c.IsAlive);
+
+        if (playersDefeated) Result = BattleResult.PlayerLose;
+        else if (enemiesDefeated) Result = BattleResult.PlayerWin;
+        else if (ElapsedTime >= TimeLimit) Result = BattleResult.TimeUp;
+        else return;
+
+        _players.ForEach(player => player.EndBattle());
+        _enemies.ForEach(enemy => enemy.EndBattle());
+
+        BattleEnded?.Invoke(Result);
     }
 
     public void InvokeTriggerAction(TriggerType triggerType,ActionResult actionResult)
     {
         TriggerAction?.Invoke(triggerType, actionResult);
+    }
+
+    public void NotifyActionPerformed(ActionResult actionResult)
+    {
+        ActionPerformed?.Invoke(actionResult);
     }
 
     public CharacterModel GetTarget(CharacterModel requester, TargetRule targetRule)
@@ -55,17 +142,19 @@ public class BattleModel : IBattleField
         return alive[UnityEngine.Random.Range(0, alive.Count)];
     }
 
-    public bool CheckObserveTarget(CharacterModel requester, ActionResult actionResult,TriggerType triggerType, TriggerObserveTargetType observeTargetType)
+    public bool CheckObserveTarget(
+        CharacterModel requester, 
+        ActionResult actionResult,
+        TriggerType triggerType, 
+        TriggerObserveTargetType observeTargetType,
+        bool observeActionOwner
+        )
     {
         if (triggerType == TriggerType.NoAction) return true;
-        CharacterModel checkTarget = triggerType == TriggerType.Active ? actionResult.Owner : 
-                                     triggerType == TriggerType.Passive ? actionResult.Target : null;
+        //CharacterModel checkTarget = triggerType == TriggerType.Active ? actionResult.Owner : 
+        //                             triggerType == TriggerType.Passive ? actionResult.Target : null;
 
-        if(checkTarget == null)
-        {
-            Debug.LogWarning($"triggerType {triggerType} のチェック対象未定義");
-            return false;
-        }
+        CharacterModel checkTarget = observeActionOwner ? actionResult.Owner : actionResult.Target;
 
         return observeTargetType switch
         {

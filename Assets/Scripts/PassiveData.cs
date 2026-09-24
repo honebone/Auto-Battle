@@ -1,9 +1,9 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using NaughtyAttributes;
 
 /// <summary>
-/// ƒpƒbƒVƒu‚ªw“Ç‚·‚éƒgƒŠƒK[‚Ìí—ŞB
-/// ŠÔŒo‰ß‚ÉŠÖ‚·‚é‚à‚Ì(–ˆ•b“™)‚Í‚±‚±‚ÉŠÜ‚ß‚¸AManualUpdate‚ÅŒÂ•ÊÀ‘•‚·‚éB
+/// ãƒ‘ãƒƒã‚·ãƒ–ãŒè³¼èª­ã™ã‚‹ãƒˆãƒªã‚¬ãƒ¼ã®ç¨®é¡ã€‚
+/// æ™‚é–“çµŒéã«é–¢ã™ã‚‹ã‚‚ã®(æ¯ç§’ç­‰)ã¯ã“ã“ã«å«ã‚ãšã€ManualUpdateã§å€‹åˆ¥å®Ÿè£…ã™ã‚‹ã€‚
 /// </summary>
 public enum TriggerType
 {
@@ -13,35 +13,35 @@ public enum TriggerType
     OnActiveSkillCast,
 
     OnDamageDealt,
-    OnDamageReceived,
+    //OnDamageReceived,
 
     OnHealDealt,
-    OnHealReceived,
+    //OnHealReceived,
 
     OnShieldGranted,
-    OnShieldReceived,
+    //OnShieldReceived,
 
     OnStatusEffectApplied,
-    OnStatusEffectReceived,
+    //OnStatusEffectReceived,
 
     OnKilled,
-    OnDied,
+    //OnDied,
 
     NoAction = CombatStart,
-    Active = OnNormalAttackDealt | OnActiveSkillCast | OnDamageDealt | OnHealDealt | OnShieldGranted | OnStatusEffectApplied | OnKilled, //‰½‚©‚ğ‚µ‚½
-    Passive = OnDamageReceived | OnHealReceived | OnShieldReceived | OnStatusEffectApplied | OnDied, //‰½‚©‚ğ‚³‚ê‚½
+    //Active = OnNormalAttackDealt | OnActiveSkillCast | OnDamageDealt | OnHealDealt | OnShieldGranted | OnStatusEffectApplied | OnKilled, //ä½•ã‹ã‚’ã—ãŸ
+    //Passive = OnDamageReceived | OnHealReceived | OnShieldReceived | OnStatusEffectApplied | OnDied, //ä½•ã‹ã‚’ã•ã‚ŒãŸ
 }
 
 public enum TriggerObserveTargetType
 {
-    Self,//©•ª©g
+    Self,//è‡ªåˆ†è‡ªèº«
 
-    Anyone,//’N‚Å‚à
+    Anyone,//èª°ã§ã‚‚
 
-    AnyAllies,//©g‚ğŠÜ‚Ş–¡•û
-    OtherAlly,//©•ª‚Å‚Í‚È‚¢•û‚Ì–¡•û
+    AnyAllies,//è‡ªèº«ã‚’å«ã‚€å‘³æ–¹
+    OtherAlly,//è‡ªåˆ†ã§ã¯ãªã„æ–¹ã®å‘³æ–¹
 
-    AnyOpponents//“G
+    AnyOpponents//æ•µ
 }
 
 [CreateAssetMenu(menuName = "PassiveData")]
@@ -49,22 +49,22 @@ public class PassiveData : ScriptableObject
 {
     public string PassiveName;
 
-    public int MaxHealthMul;
-    public int AttackPowerMul;
-    public int MagicPowerMul;
-    public int AttackSpeedMul;
-    public int CastSpeedMul;
+    [Header("å€ç‡è£œæ­£ (0.2 = +20%)")]
+    public float MaxHealthMul;
+    public float AttackPowerMul;
+    public float MagicPowerMul;
+    public float AttackSpeedMul;
+    public float CastSpeedMul;
 
-    public int CriticalChance;
-    public int Drain;
+    [Header("å®Ÿæ•°è£œæ­£ (0.1 = 10%)")]
+    public float CriticalChance;
+    public float Drain;
 
-    [Header("ˆÈ‰ºƒf[ƒ^‹ì“®—p")]
+    [Header("ä»¥ä¸‹ãƒ‡ãƒ¼ã‚¿é§†å‹•ç”¨")]
     public bool AutoSubscribe;
     public TriggerType TriggerType;
-    //public bool ObserverSomeone;
-    //[ShowIf(nameof(ObserverSomeone))]
     public TriggerObserveTargetType ObserveTargetType;
-    [Header("s“®‚Ì”­“®Ò‚ğƒ`ƒFƒbƒN‚·‚é‚©")]
+    [Header("è¡Œå‹•ã®ç™ºå‹•è€…ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹\ntrue:ã—ãŸã¨ã false:ã•ã‚ŒãŸã¨ã")]
     public bool ObserveActionOwner;
     public ActionDefinition ActionDefinition;
 

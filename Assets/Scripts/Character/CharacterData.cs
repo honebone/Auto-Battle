@@ -17,7 +17,6 @@ public class CharacterData : ScriptableObject
     public float BaseMagicPower;
     public float BaseAttackSpeed;
     public float BaseCastSpeed;
-    public float BaseCriticalChance;
     public float BaseDrain;
 
     public ActionDefinition NomalAttackDefinition;

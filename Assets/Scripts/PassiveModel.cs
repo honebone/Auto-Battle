@@ -19,14 +19,15 @@ public class PassiveModel
         if (_data.AutoSubscribe) _battleField.TriggerAction += TriggerActionFromDefinition;
     }
 
-    public void ManualUpdate(float deltaTime)
+    public virtual void ManualUpdate(float deltaTime)
     {
        
     }
 
     public void TriggerActionFromDefinition(TriggerType triggerType, ActionResult action)
     {
-        if (!_battleField.CheckObserveTarget(_owner, action, triggerType, _data.ObserveTargetType)) return;
+        if (triggerType != _data.TriggerType) return;
+        if (!_battleField.CheckObserveTarget(_owner, action, triggerType, _data.ObserveTargetType, _data.ObserveActionOwner)) return;
         _owner.PerformActionsFromDefinition(ActionSource.PassiveSkill, _data.ActionDefinition);
     }
 
@@ -38,7 +39,7 @@ public class PassiveModel
 
     private void ApplyStatusModifier(bool set)
     {
-        int sign = set ? 1 : -1;
+        float sign = set ? 1f : -1f;
 
         _owner.MaxHealth.AddMultiplier(_data.MaxHealthMul * sign);
         _owner.AttackPower.AddMultiplier(_data.AttackPowerMul * sign);

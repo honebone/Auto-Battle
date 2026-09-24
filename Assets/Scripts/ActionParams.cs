@@ -1,9 +1,9 @@
-using NaughtyAttributes;
+ï»¿using NaughtyAttributes;
 using System.Collections.Generic;
 using test;
 using UnityEngine;
 
-public enum ActionSource { Other, NormalAttack, ActiveSkill, PassiveSkill, Item, StatusEffect }
+public enum ActionSource { Other, NormalAttack, ActiveSkill, PassiveSkill }
 
 public struct ActionParams
 {
@@ -12,16 +12,16 @@ public struct ActionParams
     public ActionSource Source;
 
     public List<EffectParams> Effects;
-    /// <summary>s“®•â³”\—Í‚É‚æ‚Á‚Ä’Ç‰Á‚³‚ê‚½Œø‰Ê</summary>
+    /// <summary>è¡Œå‹•è£œæ­£èƒ½åŠ›ã«ã‚ˆã£ã¦è¿½åŠ ã•ã‚ŒãŸåŠ¹æœ</summary>
     public List<EffectParams> AdditionalEffects;
 
     public bool canCritical;
     public bool canDrain;
-    /// <summary>—^ƒ_ƒ[ƒW‘‰Á(%)</summary>
-    public float BonusAllDMG;
-    public float BonusPhysicalDMG;
-    public float BonusMagicDMG;
+    /// <summary>ä¸ãƒ€ãƒ¡ãƒ¼ã‚¸å¢—åŠ å€ç‡ (0.2 = +20%)</summary>
+    public float BonusDMG;
+    /// <summary>å›å¾©é‡å¢—åŠ å€ç‡ (0.2 = +20%)</summary>
     public float BonusHeal;
+    /// <summary>ã‚·ãƒ¼ãƒ«ãƒ‰é‡å¢—åŠ å€ç‡ (0.2 = +20%)</summary>
     public float BonusShield;
 
     public ActionParams(CharacterModel owner, ActionSource source, CharacterModel target, List<EffectDefinition> effects)
@@ -33,10 +33,10 @@ public struct ActionParams
         Effects = new List<EffectParams>();
         foreach(var effect in effects)
         {
-            float value = effect.ValueSource == BaseValueSource.FixedValue ? effect.ValueRatio : owner.GetBaseValue(effect.ValueSource) * effect.ValueRatio / 100f;
+            float value = effect.ValueSource == BaseValueSource.FixedValue ? effect.ValueRatio : owner.GetBaseValue(effect.ValueSource) * effect.ValueRatio;
             EffectParams effectParams = new EffectParams(effect.EffectType, value);
 
-            //TODO:ó‘ÔˆÙí‚É‘Î‰
+            //TODO:çŠ¶æ…‹ç•°å¸¸ã«å¯¾å¿œ
             Effects.Add(effectParams);
         }
 
@@ -45,9 +45,7 @@ public struct ActionParams
         canCritical = source == ActionSource.NormalAttack;
         canDrain = source == ActionSource.NormalAttack;
 
-        BonusAllDMG = 0;
-        BonusPhysicalDMG = 0;
-        BonusMagicDMG = 0;
+        BonusDMG = 0;
         BonusHeal = 0;
         BonusShield = 0;
     }
@@ -58,7 +56,7 @@ public struct EffectParams
     public EffectType EffectType;
     public float Value;
 
-    //ó‘ÔˆÙí•t—^Œø‰Ê‚Ì‚İ
+    //çŠ¶æ…‹ç•°å¸¸ä»˜ä¸åŠ¹æœã®ã¿
     public StatusEffectDefinition StatusEffectToApply;
 
     public  EffectParams(EffectType effectType,float value, StatusEffectDefinition statusEffectDefinition = null)

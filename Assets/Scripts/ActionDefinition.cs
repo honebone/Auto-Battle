@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using test;
 using UnityEngine;
 using NaughtyAttributes;
@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 public enum EffectType
 {
-    Attack,             // UŒ‚
-    Heal,               // ‰ñ•œ
-    ShieldGrant,        // ƒV[ƒ‹ƒh•t—^
-    SpChange,           // SP‘‰Á/Œ¸­
-    StatusEffectApply,  // ó‘ÔˆÙí‚Ì•t—^
+    Attack,             // æ”»æ’ƒ
+    Heal,               // å›å¾©
+    ShieldGrant,        // ã‚·ãƒ¼ãƒ«ãƒ‰ä»˜ä¸
+    SpChange,           // SPå¢—åŠ /æ¸›å°‘
+    StatusEffectApply,  // çŠ¶æ…‹ç•°å¸¸ã®ä»˜ä¸
 }
 
 public enum TargetRule
@@ -29,21 +29,21 @@ public enum TargetRule
 }
 
 /// <summary>
-/// ActionSpec‚ÌŠî‘b’l‚ÌQÆŒ³B
-/// ƒŒƒAƒP[ƒX(ƒXƒ^ƒbƒN”ˆË‘¶ƒ_ƒ[ƒW“™)‚Í‚±‚±‚ÉŠÜ‚ß‚¸A
-/// ActionResolver.ResolveWithExplicitValue‚ğŒÂ•ÊƒNƒ‰ƒX‚©‚ç’¼ÚŒÄ‚ÔŒ`‚Å‘Î‰‚·‚éB
+/// ActionSpecã®åŸºç¤å€¤ã®å‚ç…§å…ƒã€‚
+/// ãƒ¬ã‚¢ã‚±ãƒ¼ã‚¹(ã‚¹ã‚¿ãƒƒã‚¯æ•°ä¾å­˜ãƒ€ãƒ¡ãƒ¼ã‚¸ç­‰)ã¯ã“ã“ã«å«ã‚ãšã€
+/// ActionResolver.ResolveWithExplicitValueã‚’å€‹åˆ¥ã‚¯ãƒ©ã‚¹ã‹ã‚‰ç›´æ¥å‘¼ã¶å½¢ã§å¯¾å¿œã™ã‚‹ã€‚
 /// </summary>
 public enum BaseValueSource
 {
-    AttackPower,  // ©g‚ÌUŒ‚—Í ~ ValueRatio
-    MagicPower,   // ©g‚Ì–‚—Í ~ ValueRatio
-    MaxHealth,    // ©g‚ÌÅ‘å‘Ì—Í ~ ValueRatio
-    FixedValue,   // ValueRatio‚ğ‚»‚Ì‚Ü‚ÜŒÅ’è’l‚Æ‚µ‚Äg—p
+    AttackPower,  // è‡ªèº«ã®æ”»æ’ƒåŠ› Ã— ValueRatio
+    MagicPower,   // è‡ªèº«ã®é­”åŠ› Ã— ValueRatio
+    MaxHealth,    // è‡ªèº«ã®æœ€å¤§ä½“åŠ› Ã— ValueRatio
+    FixedValue,   // ValueRatioã‚’ãã®ã¾ã¾å›ºå®šå€¤ã¨ã—ã¦ä½¿ç”¨
 }
 
 /// <summary>
-/// s“®‚Ì’è‹`
-/// ƒf[ƒ^‹ì“®‚Ås“®‚ğ’è‹`‚µ‚½‚¢ê‡‚ÉŠˆ—p
+/// è¡Œå‹•ã®å®šç¾©
+/// ãƒ‡ãƒ¼ã‚¿é§†å‹•ã§è¡Œå‹•ã‚’å®šç¾©ã—ãŸã„å ´åˆã«æ´»ç”¨
 /// </summary>
 [Serializable]
 public class ActionDefinition
@@ -53,17 +53,17 @@ public class ActionDefinition
 }
 
 /// <summary>
-/// Œø‰Ê1‚Â‚Ìu’è‹`vB’ÊíUŒ‚EƒAƒNƒeƒBƒuƒXƒLƒ‹Eƒf[ƒ^‹ì“®ƒpƒbƒVƒu‚ª•Û‚·‚éB
-/// SO‰»‚Í‚¹‚¸AŠeƒXƒLƒ‹’è‹`‚É–„‚ß‚ŞƒVƒŠƒAƒ‰ƒCƒY‰Â”\‚Èƒf[ƒ^‚Æ‚µ‚Äˆµ‚¤B
+/// åŠ¹æœ1ã¤ã®ã€Œå®šç¾©ã€ã€‚é€šå¸¸æ”»æ’ƒãƒ»ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¹ã‚­ãƒ«ãƒ»ãƒ‡ãƒ¼ã‚¿é§†å‹•ãƒ‘ãƒƒã‚·ãƒ–ãŒä¿æŒã™ã‚‹ã€‚
+/// SOåŒ–ã¯ã›ãšã€å„ã‚¹ã‚­ãƒ«å®šç¾©ã«åŸ‹ã‚è¾¼ã‚€ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºå¯èƒ½ãªãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦æ‰±ã†ã€‚
 /// </summary>
 [Serializable]
 public class EffectDefinition
 {
     public EffectType EffectType;
     public BaseValueSource ValueSource;
-    [Tooltip("ValueSource‚É‘Î‚·‚é”{—¦(%)")]
-    public float ValueRatio = 100f;
+    [Tooltip("ValueSourceã«å¯¾ã™ã‚‹å€ç‡(1 = 100%)ã€‚FixedValueã®å ´åˆã¯å›ºå®šå€¤")]
+    public float ValueRatio = 1f;
 
-    [EnableIf("ActionType", EffectType.StatusEffectApply)]
+    [EnableIf("EffectType", EffectType.StatusEffectApply)]
     public StatusEffectDefinition StatusEffectToApply;
 }

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4884d807584d9b647847c614faad5c1f, type: 3}
+  m_Name: P_F01_Knight_Passive
+  m_EditorClassIdentifier: 
+  PassiveName: 
+  MaxHealthMul: 0
+  AttackPowerMul: 0
+  MagicPowerMul: 0
+  AttackSpeedMul: 0
+  CastSpeedMul: 0
+  CriticalChance: 0
+  Drain: 0
+  AutoSubscribe: 1
+  TriggerType: 2
+  ObserveTargetType: 0
+  ObserveActionOwner: 1
+  ActionDefinition:
+    TargetRule: 8
+    Effects:
+    - EffectType: 2
+      ValueSource: 2
+      ValueRatio: 0.2
+      StatusEffectToApply: {fileID: 0}
