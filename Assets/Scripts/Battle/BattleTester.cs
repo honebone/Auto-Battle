@@ -16,7 +16,9 @@ public class BattleTester : MonoBehaviour
     [SerializeField] private CharacterData _enemyBack;
 
     [Header("設定")]
-    [SerializeField] private float _timeLimit = BattleModel.DefaultTimeLimit;
+    [Tooltip("有効にすると、Databaseの制限時間の代わりに下の値を使う(時間切れの確認用)")]
+    [SerializeField] private bool _overrideTimeLimit = false;
+    [SerializeField, EnableIf(nameof(_overrideTimeLimit)), Min(0f)] private float _timeLimitOverride = 10f;
     [Tooltip("戦闘の進行速度倍率")]
     [SerializeField, Min(0f)] private float _timeScale = 1f;
     [SerializeField] private bool _playOnStart = true;
@@ -56,7 +58,7 @@ public class BattleTester : MonoBehaviour
         _logger?.Dispose();
         _logger = null;
 
-        _battle = new BattleModel(_timeLimit);
+        _battle = new BattleModel(_overrideTimeLimit ? _timeLimitOverride : null);
         _battle.SetCharacters(true, _playerFront, _playerBack);
         _battle.SetCharacters(false, _enemyFront, _enemyBack);
 
@@ -74,7 +76,7 @@ public class BattleTester : MonoBehaviour
         StartBattle();
 
         //制限時間を超えれば必ずTimeUpで終了するが、念のため上限を設ける
-        int maxSteps = Mathf.CeilToInt(_timeLimit / _simulateDeltaTime) + 10;
+        int maxSteps = Mathf.CeilToInt(_battle.TimeLimit / _simulateDeltaTime) + 10;
         for (int i = 0; i < maxSteps && !_battle.IsFinished; i++)
         {
             _battle.ManualUpdate(_simulateDeltaTime);

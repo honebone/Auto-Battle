@@ -12,6 +12,7 @@ public class BattleLogger : IDisposable
     private static readonly Color HealColor = new Color(0.4f, 1f, 0.4f);
     private static readonly Color ShieldColor = new Color(0.4f, 0.8f, 1f);
     private static readonly Color KillColor = new Color(1f, 0.85f, 0.2f);
+    private static readonly Color CriticalColor = new Color(1f, 0.6f, 0.1f);
 
     private readonly BattleModel _battle;
 
@@ -59,8 +60,9 @@ public class BattleLogger : IDisposable
         {
             string dmg = $"{result.HPDMG + result.ShieldDMG}ダメージ";
             if (result.ShieldDMG > 0) dmg += $"(シールド {result.ShieldDMG})";
-            if (result.IsCritical) dmg += " クリティカル!";
-            parts.Add(dmg.ColorStr(DamageColor));
+            dmg = dmg.ColorStr(DamageColor);
+            if (result.IsCritical) dmg = "クリティカル! ".ColorStr(CriticalColor) + dmg;
+            parts.Add(dmg);
         }
         if (result.Healed())
         {

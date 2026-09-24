@@ -370,10 +370,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerFront: {fileID: 11400000, guid: 069f2de66f9b95b4680c21da20239e50, type: 2}
-  _playerBack: {fileID: 11400000, guid: 0c378d13fc10b7e4592f276fbde22a1a, type: 2}
+  _playerBack: {fileID: 11400000, guid: c5f7ad044f715c44e880e25cdae6070a, type: 2}
   _enemyFront: {fileID: 11400000, guid: 6c7c76a990bb8bc4dbe2a73fe16717bc, type: 2}
   _enemyBack: {fileID: 11400000, guid: 4e59068686d59354fa61de612020b50f, type: 2}
-  _timeLimit: 60
+  _overrideTimeLimit: 0
+  _timeLimitOverride: 10
   _timeScale: 1
   _playOnStart: 1
   _enableLog: 1

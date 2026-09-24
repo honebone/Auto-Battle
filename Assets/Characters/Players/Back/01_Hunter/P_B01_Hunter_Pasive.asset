@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4127c67e7e48f904fbe47513d25f2510, type: 3}
-  m_Name: P_F01_Knight_Passive
+  m_Script: {fileID: 11500000, guid: dd82989a9433a1842a2e2724e793578c, type: 3}
+  m_Name: P_B01_Hunter_Pasive
   m_EditorClassIdentifier: 
   PassiveName: 
   MaxHealthMul: 0
@@ -25,11 +25,6 @@ MonoBehaviour:
   ObserveTargetType: 0
   ObserveActionOwner: 0
   ActionDefinition:
-    TargetRule: 8
-    Effects:
-    - EffectType: 2
-      ValueSource: 2
-      ValueRatio: 0.15
-      StatusEffectToApply: {fileID: 0}
-  HPRatioTH: 0.5
-  BonusShield: 1
+    TargetRule: 0
+    Effects: []
+  MaxNACount: 2

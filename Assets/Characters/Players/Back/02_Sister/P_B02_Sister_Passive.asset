@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4884d807584d9b647847c614faad5c1f, type: 3}
-  m_Name: P_F01_Hunter_Pasive
+  m_Name: P_B02_Sister_Passive
   m_EditorClassIdentifier: 
   PassiveName: 
   MaxHealthMul: 0
@@ -21,13 +21,13 @@ MonoBehaviour:
   CriticalChance: 0
   Drain: 0
   AutoSubscribe: 1
-  TriggerType: 7
+  TriggerType: 1
   ObserveTargetType: 0
   ObserveActionOwner: 1
   ActionDefinition:
-    TargetRule: 8
+    TargetRule: 7
     Effects:
-    - EffectType: 3
-      ValueSource: 3
-      ValueRatio: 100
+    - EffectType: 1
+      ValueSource: 1
+      ValueRatio: 1
       StatusEffectToApply: {fileID: 0}

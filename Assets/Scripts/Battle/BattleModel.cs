@@ -15,8 +15,6 @@ public enum BattleResult
 
 public class BattleModel : IBattleField
 {
-    public const float DefaultTimeLimit = 60f;
-
     private List<CharacterModel> _players = new List<CharacterModel>();
     private List<CharacterModel> _enemies = new List<CharacterModel>();
     public IReadOnlyList<CharacterModel> Players => _players;
@@ -34,9 +32,10 @@ public class BattleModel : IBattleField
     public bool IsStarted { get; private set; }
     public bool IsFinished => Result != BattleResult.InProgress;
 
-    public BattleModel(float timeLimit = DefaultTimeLimit)
+    /// <param name="timeLimitOverride">制限時間を上書きする場合に指定(デバッグ用)。nullならDatabaseの値を使用</param>
+    public BattleModel(float? timeLimitOverride = null)
     {
-        TimeLimit = timeLimit;
+        TimeLimit = timeLimitOverride ?? Database.Instance.BattleTimeLimit;
     }
 
     /// <summary>

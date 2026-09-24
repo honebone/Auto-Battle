@@ -8,6 +8,10 @@ public class Database : ScriptableObject
     /// <summary>基礎クリティカルダメージ倍率 (0.75 = +75%)</summary>
     public float BaseCriticalDamageRate = 0.75f;
 
+    public float ShieldLossOvertime = 0.05f;
+
+    public int BattleTimeLimit = 45;
+
     private const string ResourcePath = "Database";
     private static Database _instance;
 

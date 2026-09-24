@@ -37,15 +37,15 @@ public static class Extentions
 
     public static bool Dice(this float fPercent)
     {
-        float dice = UnityEngine.Random.value * 100.0f;
+        float dice = UnityEngine.Random.value;
         return dice <= fPercent;
     }
 
-    public static bool Dice(this int chance)
-    {
-        int dice = Random.Range(0, 100);
-        return dice < chance;
-    }
+    //public static bool Dice(this int chance)
+    //{
+    //    int dice = Random.Range(0, 100);
+    //    return dice < chance;
+    //}
 
     /// <summary>x~y‚Ü‚Å</summary>
     public static int Range(this Vector2Int vector2)

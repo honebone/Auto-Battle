@@ -16,6 +16,8 @@ public struct CharaContext
     public int Position;
 }
 
+public delegate void ActionParamsHandler(ref ActionParams param);
+
 public class CharacterModel
 {
     public CharacterData Data { get; }
@@ -42,6 +44,8 @@ public class CharacterModel
     public ReadOnlyReactiveProperty<float> NATimer => _naTimer;
     private readonly ReactiveProperty<float> _naTimer;
 
+    private float _shieldTimer;
+
     public bool IsPlayer => _isPlayer;
     private bool _isPlayer;
     public int Position => _position;
@@ -49,6 +53,8 @@ public class CharacterModel
 
     /// <summary>ログ表示用の名前 例:[P前]騎士</summary>
     public string DisplayName => $"[{(_isPlayer ? "P" : "E")}{(_position == 0 ? "前" : "後")}]{Data.CharacterName}";
+
+    public event ActionParamsHandler ModifyAction;
 
     private IBattleField _battleField;
     private PassiveModel _passiveSkill;
@@ -93,6 +99,7 @@ public class CharacterModel
         _shield.Value = 0;
         _ap.Value = 0;
         _naTimer.Value = 0;
+        _shieldTimer = 0;
     }
 
     /// <summary>
@@ -123,10 +130,35 @@ public class CharacterModel
             PerformActiveSkill();
         }
 
-        //TODO:シールドの自然現象
+        UpdateShieldLoss(deltaTime);
 
         _passiveSkill?.ManualUpdate(deltaTime);
         //TODO:アイテム、状態異常のPassiveModelのManualUpdate
+    }
+
+    /// <summary>シールドの自然減少。毎秒 最大体力×ShieldLossOvertime 分を1ずつ減少させる</summary>
+    private void UpdateShieldLoss(float deltaTime)
+    {
+        if (_shield.Value <= 0)
+        {
+            _shieldTimer = 0;
+            return;
+        }
+
+        float lossPerSecond = MaxHealth.FloatValue * Database.Instance.ShieldLossOvertime;
+        if (lossPerSecond <= 0) return;
+
+        float interval = 1f / lossPerSecond;
+        _shieldTimer += deltaTime;
+
+        int loss = 0;
+        while (_shieldTimer >= interval && loss < _shield.Value)
+        {
+            _shieldTimer -= interval;
+            loss++;
+        }
+        if (loss > 0) _shield.Value -= loss;
+        if (_shield.Value <= 0) _shieldTimer = 0;
     }
 
 
@@ -216,22 +248,51 @@ public class CharacterModel
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
+    ///// <summary> ActionDefinitionをもとに自動で行動内容(ActionParams)を生成 </summary>
+    //public ActionParams CreateActionFromDefinition(ActionSource actionSource, ActionDefinition actionDefinition)
+    //{
+    //    if (actionDefinition?.Effects == null || actionDefinition.Effects.Count == 0) throw new ArgumentNullException(nameof(actionDefinition));
+
+    //    CharacterModel target = GetTarget(actionDefinition.TargetRule);
+    //    if (target == null) throw new ArgumentNullException(nameof(target));//対象が存在しない(相手が全滅している等)場合は行動しない
+
+    //    return new ActionParams(this, actionSource, target, actionDefinition.Effects);
+    //}
 
     /// <summary>
-    /// ActionDefinitionをもとに自動で行動内容(ActionParams)を生成し実行
+    /// ActionDefinitionをもとにActionParamsを自動生成
+    /// ActionParamsを生成できた場合はtrueを返す
     /// </summary>
-    /// <param name="targets"></param>
-    /// <param name="actionSource"></param>
-    /// <param name="actionDefinition"></param>
-    public void PerformActionsFromDefinition(ActionSource actionSource, ActionDefinition actionDefinition)
+    public bool TryCreateActionFromDefinition(
+        ActionSource actionSource,
+        ActionDefinition actionDefinition,
+        out ActionParams actionParams)
     {
-        if (actionDefinition?.Effects == null || actionDefinition.Effects.Count == 0) return;
+        actionParams = default;
+
+        if (actionDefinition == null) throw new ArgumentNullException(nameof(actionDefinition));
+
+        if (actionDefinition.Effects == null || actionDefinition.Effects.Count == 0) return false;
 
         CharacterModel target = GetTarget(actionDefinition.TargetRule);
-        if (target == null) return;//対象が存在しない(相手が全滅している等)場合は行動しない
 
-        ActionParams action = new ActionParams(this, actionSource, target, actionDefinition.Effects);
-        PerformAction(action);
+        // 対象が存在しない場合は行動しない
+        if (target == null) return false;
+
+        actionParams = new ActionParams(
+            this,
+            actionSource,
+            target,
+            actionDefinition.Effects
+        );
+
+        return true;
+    }
+
+    /// <summary>ActionDefinitionをもとに自動で行動内容(ActionParams)を生成し実行</summary>
+    public void PerformActionsFromDefinition(ActionSource actionSource, ActionDefinition actionDefinition)
+    {
+        if (TryCreateActionFromDefinition(actionSource, actionDefinition, out var actionParams)) PerformAction(actionParams);
     }
 
     public void PerformNormalAttack()
@@ -246,7 +307,9 @@ public class CharacterModel
 
     public ActionResult PerformAction(ActionParams actionParams)
     {
-        //TODO:効果補正
+        ModifyAction?.Invoke(ref actionParams);
+
+
         CharacterModel target = actionParams.Target;
         DamageResult damageResult = new DamageResult(0, 0, false);
         Vector2Int heal = Vector2Int.zero;
@@ -254,19 +317,22 @@ public class CharacterModel
         float ap = 0;
         //TODO:付与した状態異常を記録
 
-        //TODO:クリティカル判定
-        bool isCritical = false;
+        //TODO:シード値をもとにした乱数の使用 攻撃しない場合はクリティカル判定処理をしない(無駄に乱数を使わないように)
+        bool isCritical = actionParams.guaranteeCritical || (actionParams.canCritical && CriticalChance.FloatValue.Dice());
         foreach (var effect in actionParams.Effects)
         {
             float value = effect.Value;
 
             switch (effect.EffectType)
             {
-                case EffectType.Attack://TODO:クリティカルによるダメージ量補正
-                    DamageResult dmg = target.TakeDamage((value * (1f + actionParams.BonusDMG)).ToInt());
-                    damageResult.HPDMG += dmg.HPDMG;
-                    damageResult.ShieldDMG += dmg.ShieldDMG;
-                    damageResult.Killed |= dmg.Killed;
+                case EffectType.Attack:
+
+                    float dmg = (value * (1f + actionParams.BonusDMG));
+                    if (isCritical) dmg *= 1f + CriticalDamage.FloatValue;
+                    DamageResult dResult = target.TakeDamage(dmg.ToInt());
+                    damageResult.HPDMG += dResult.HPDMG;
+                    damageResult.ShieldDMG += dResult.ShieldDMG;
+                    damageResult.Killed |= dResult.Killed;
                     break;
                 case EffectType.Heal:
                     heal += target.Heal((value * (1f + actionParams.BonusHeal)).ToInt());

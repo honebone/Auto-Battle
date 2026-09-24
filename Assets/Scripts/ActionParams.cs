@@ -16,7 +16,9 @@ public struct ActionParams
     public List<EffectParams> AdditionalEffects;
 
     public bool canCritical;
+    public bool guaranteeCritical;
     public bool canDrain;
+
     /// <summary>与ダメージ増加倍率 (0.2 = +20%)</summary>
     public float BonusDMG;
     /// <summary>回復量増加倍率 (0.2 = +20%)</summary>
@@ -43,6 +45,7 @@ public struct ActionParams
         AdditionalEffects = new List<EffectParams>();
 
         canCritical = source == ActionSource.NormalAttack;
+        guaranteeCritical = false;
         canDrain = source == ActionSource.NormalAttack;
 
         BonusDMG = 0;

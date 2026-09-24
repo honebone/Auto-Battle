@@ -15,10 +15,10 @@ MonoBehaviour:
   CharacterName: "\u9A0E\u58EB"
   Frontline: 0
   BaseMaxHealth: 500
-  BaseAttackPower: 20
+  BaseAttackPower: 17
   BaseMagicPower: 10
   BaseAttackSpeed: 0.5
-  BaseCastSpeed: 10
+  BaseCastSpeed: 12
   BaseDrain: 0
   NomalAttackDefinition:
     TargetRule: 0
@@ -32,6 +32,6 @@ MonoBehaviour:
     Effects:
     - EffectType: 0
       ValueSource: 0
-      ValueRatio: 4
+      ValueRatio: 3
       StatusEffectToApply: {fileID: 0}
   PassiveSkillData: {fileID: 11400000, guid: f7d571fe76545934fbb96e6a1541015f, type: 2}

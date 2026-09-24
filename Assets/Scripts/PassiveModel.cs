@@ -17,12 +17,16 @@ public class PassiveModel
     {
         ApplyStatusModifier(true);
         if (_data.AutoSubscribe) _battleField.TriggerAction += TriggerActionFromDefinition;
+        _battleField.TriggerAction += OnTriggered;
+        _owner.ModifyAction += ModifyAction;
     }
 
     public virtual void ManualUpdate(float deltaTime)
     {
        
     }
+
+    public virtual void ModifyAction(ref ActionParams actionParams) { }
 
     public void TriggerActionFromDefinition(TriggerType triggerType, ActionResult action)
     {
@@ -31,10 +35,14 @@ public class PassiveModel
         _owner.PerformActionsFromDefinition(ActionSource.PassiveSkill, _data.ActionDefinition);
     }
 
+    public virtual void OnTriggered(TriggerType triggerType, ActionResult action) { }
+
     public void Disable()
     {
         ApplyStatusModifier(false);
         if (_data.AutoSubscribe) _battleField.TriggerAction -= TriggerActionFromDefinition;
+        _battleField.TriggerAction -= OnTriggered;
+        _owner.ModifyAction -= ModifyAction;
     }
 
     private void ApplyStatusModifier(bool set)

@@ -18,7 +18,7 @@ MonoBehaviour:
   BaseAttackPower: 15
   BaseMagicPower: 10
   BaseAttackSpeed: 0.4
-  BaseCastSpeed: 10
+  BaseCastSpeed: 8
   BaseDrain: 0
   NomalAttackDefinition:
     TargetRule: 0

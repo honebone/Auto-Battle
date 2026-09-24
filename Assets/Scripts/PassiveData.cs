@@ -44,7 +44,7 @@ public enum TriggerObserveTargetType
     AnyOpponents//敵
 }
 
-[CreateAssetMenu(menuName = "PassiveData")]
+[CreateAssetMenu(menuName = "PassiveData/DataDriven")]
 public class PassiveData : ScriptableObject
 {
     public string PassiveName;
