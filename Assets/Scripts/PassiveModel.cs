@@ -13,17 +13,15 @@ public class PassiveModel
         _battleField = battleField;
     }
 
-    public void Init()
+    public virtual void Init()
     {
-        ApplyStatusModifier(true);
-        if (_data.AutoSubscribe) _battleField.TriggerAction += TriggerActionFromDefinition;
-        _battleField.TriggerAction += OnTriggered;
-        _owner.ModifyAction += ModifyAction;
+        ApplyStatusModifier(1f);
+        Subscribe();
     }
 
     public virtual void ManualUpdate(float deltaTime)
     {
-       
+
     }
 
     public virtual void ModifyAction(ref ActionParams actionParams) { }
@@ -37,25 +35,42 @@ public class PassiveModel
 
     public virtual void OnTriggered(TriggerType triggerType, ActionResult action) { }
 
-    public void Disable()
+    /// <summary>
+    /// 戦闘終了時に呼ばれる。戦闘中限定の効果(戦闘終了時まで続く補正など)をリセットする
+    /// パッシブ自体は有効のまま
+    /// </summary>
+    public virtual void OnBattleEnd() { }
+
+    public virtual void Disable()
     {
-        ApplyStatusModifier(false);
+        ApplyStatusModifier(-1f);
+        Unsubscribe();
+    }
+
+    private protected void Subscribe()
+    {
+        if (_data.AutoSubscribe) _battleField.TriggerAction += TriggerActionFromDefinition;
+        _battleField.TriggerAction += OnTriggered;
+        _owner.ModifyAction += ModifyAction;
+    }
+
+    private protected void Unsubscribe()
+    {
         if (_data.AutoSubscribe) _battleField.TriggerAction -= TriggerActionFromDefinition;
         _battleField.TriggerAction -= OnTriggered;
         _owner.ModifyAction -= ModifyAction;
     }
 
-    private void ApplyStatusModifier(bool set)
+    /// <summary>PassiveDataの補正値にscaleを掛けて反映する(1で付与、-1で解除)</summary>
+    private protected void ApplyStatusModifier(float scale)
     {
-        float sign = set ? 1f : -1f;
+        _owner.MaxHealth.AddMultiplier(_data.MaxHealthMul * scale);
+        _owner.AttackPower.AddMultiplier(_data.AttackPowerMul * scale);
+        _owner.MagicPower.AddMultiplier(_data.MagicPowerMul * scale);
+        _owner.AttackSpeed.AddMultiplier(_data.AttackSpeedMul * scale);
+        _owner.CastSpeed.AddMultiplier(_data.CastSpeedMul * scale);
 
-        _owner.MaxHealth.AddMultiplier(_data.MaxHealthMul * sign);
-        _owner.AttackPower.AddMultiplier(_data.AttackPowerMul * sign);
-        _owner.MagicPower.AddMultiplier(_data.MagicPowerMul * sign);
-        _owner.AttackSpeed.AddMultiplier(_data.AttackSpeedMul * sign);
-        _owner.CastSpeed.AddMultiplier(_data.CastSpeedMul * sign);
-
-        _owner.CriticalChance.AddFlat(_data.CriticalChance * sign);
-        _owner.Drain.AddFlat(_data.Drain * sign);
+        _owner.CriticalChance.AddFlat(_data.CriticalChance * scale);
+        _owner.Drain.AddFlat(_data.Drain * scale);
     }
 }

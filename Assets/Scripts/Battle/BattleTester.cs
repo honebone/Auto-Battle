@@ -24,6 +24,9 @@ public class BattleTester : MonoBehaviour
     [SerializeField] private bool _playOnStart = true;
     [SerializeField] private bool _enableLog = true;
 
+    [Header("ログ")]
+    [SerializeField] private BattleLogColorSettings _logColors = new BattleLogColorSettings();
+
     [Header("即時シミュレーション")]
     [Tooltip("即時シミュレーション時の1ステップの秒数")]
     [SerializeField, Min(0.001f)] private float _simulateDeltaTime = 1f / 60f;
@@ -62,7 +65,7 @@ public class BattleTester : MonoBehaviour
         _battle.SetCharacters(true, _playerFront, _playerBack);
         _battle.SetCharacters(false, _enemyFront, _enemyBack);
 
-        if (_enableLog) _logger = new BattleLogger(_battle);
+        if (_enableLog) _logger = new BattleLogger(_battle, _logColors);
 
         _battle.StartBattle();
     }

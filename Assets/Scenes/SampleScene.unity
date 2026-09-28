@@ -378,6 +378,18 @@ MonoBehaviour:
   _timeScale: 1
   _playOnStart: 1
   _enableLog: 1
+  _logColors:
+    PlayerFront: {r: 0.8490566, g: 0.65415967, b: 0.18823424, a: 1}
+    PlayerBack: {r: 0.9811321, g: 0.92299634, b: 0.7821289, a: 1}
+    EnemyFront: {r: 0.48759767, g: 0.24701849, b: 0.8584906, a: 1}
+    EnemyBack: {r: 0.8099696, g: 0.69882524, b: 0.9811321, a: 1}
+    Damage: {r: 1, g: 0.4, b: 0.4, a: 1}
+    Critical: {r: 1, g: 0.6, b: 0.1, a: 1}
+    Heal: {r: 0.4, g: 1, b: 0.4, a: 1}
+    Shield: {r: 0.4, g: 0.8, b: 1, a: 1}
+    Kill: {r: 1, g: 0.85, b: 0.2, a: 1}
+    Buff: {r: 0.7, g: 1, b: 0.3, a: 1}
+    Debuff: {r: 0.85, g: 0.35, b: 0.6, a: 1}
   _simulateDeltaTime: 0.016666668
 --- !u!4 &1965169538
 Transform:

@@ -1,24 +1,32 @@
 using UnityEngine;
 
+/// <summary>
+/// 状態異常のランタイムインスタンス。同じ種類でも発生源(Source)ごとに別インスタンスとして管理する。
+/// スタックが0になったら IsExpired となり、CharacterModel側で除去される。
+/// </summary>
 public class StatusEffectModel : PassiveModel
 {
-    private protected int _maxStack;
-    private protected int _stack;
-    public StatusEffectModel(CharacterModel owner, PassiveData data, IBattleField battleField, int maxStack, int stack) : base(owner, data, battleField)
+    public CharacterModel Source { get; }
+    public StatusEffectData Data => (StatusEffectData)_data;
+    public int Stack { get; private set; }
+    public bool IsExpired => Stack <= 0;
+
+    public StatusEffectModel(CharacterModel owner, CharacterModel source, StatusEffectData data, IBattleField battleField) : base(owner, data, battleField)
     {
-        _maxStack = maxStack;
-        _stack = stack;
+        Source = source;
     }
 
-    public void ChangeStack(int amount)
+    /// <summary>スタック数を増減させ、実際に変化した量を返す</summary>
+    public int ChangeStack(int amount)
     {
-        int changed = Mathf.Clamp(amount, 0, _maxStack - _stack);
+        int changed = Mathf.Clamp(amount, -Stack, Data.MaxStack - Stack);
+        if (changed == 0) return 0;
 
-        _stack += changed;
+        Stack += changed;
         OnStackChanged(changed);
 
-        //TODO:0�ɂȂ��������
+        return changed;
     }
 
-    public virtual void OnStackChanged(int changed) { }
+    private protected virtual void OnStackChanged(int changed) { }
 }

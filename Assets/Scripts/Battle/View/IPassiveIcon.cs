@@ -1,8 +1,10 @@
 using UnityEngine;
 
+public  enum PassiveIconType { Other, Buff, Debuff}
+
 public interface IPassiveIcon
 {
-    void Init(Sprite Icon);
+    void Init(Sprite icon, PassiveIconType iconType);
     void SetVisible(bool set);
     /// <summary>クールダウン中、条件未達等の場合はfalseにしてグレーアウト</summary>
     void SetActive(bool set);
@@ -10,4 +12,5 @@ public interface IPassiveIcon
     void SetGauge(float value);
     /// <summary>スタック数、残り発動回数などの数字を表示</summary>
     void SetText(string text);
+    void PlayTriggered();
 }

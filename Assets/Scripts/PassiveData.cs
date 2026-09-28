@@ -48,6 +48,7 @@ public enum TriggerObserveTargetType
 public class PassiveData : ScriptableObject
 {
     public string PassiveName;
+    public Sprite PassiveIcon;
 
     [Header("倍率補正 (0.2 = +20%)")]
     public float MaxHealthMul;

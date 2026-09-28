@@ -3,28 +3,34 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "StatusEffectData/RemoveStackOvertime")]
 public class StEData_RemoveStackOvertime : StatusEffectData
 {
-    [Header("‰½•b‚²‚Æ‚ÉƒXƒ^ƒbƒN‚ðŒ¸­‚³‚¹‚é‚©")]
-    public float RemoveTime;
+    [Header("ä½•ç§’ã”ã¨ã«ã‚¹ã‚¿ãƒƒã‚¯ã‚’1æ¸›å°‘ã•ã›ã‚‹ã‹")]
+    public float RemoveTime = 1;
+
+    public override StatusEffectModel CreateStatusEffectModel(CharacterModel owner, CharacterModel source, IBattleField battleField)
+    {
+        return new StEModel_RemoveStackOvertime(owner, source, this, battleField);
+    }
 }
 
 public class StEModel_RemoveStackOvertime : StatusEffectModel
 {
-    private float _removeTime;
     private float _removeTimer;
 
-    public StEModel_RemoveStackOvertime(CharacterModel owner, PassiveData data, IBattleField battleField, int maxStack, int stack,float removeTime ) : base(owner, data, battleField,maxStack,stack)
-    {
-        _removeTime = removeTime;
-    }
+    private StEData_RemoveStackOvertime TypedData => (StEData_RemoveStackOvertime)_data;
+
+    public StEModel_RemoveStackOvertime(CharacterModel owner, CharacterModel source, StEData_RemoveStackOvertime data, IBattleField battleField) : base(owner, source, data, battleField) { }
 
     public override void ManualUpdate(float deltaTime)
     {
         base.ManualUpdate(deltaTime);
 
+        float removeTime = TypedData.RemoveTime;
+        if (removeTime <= 0) return;
+
         _removeTimer += deltaTime;
-        if(_removeTimer >= _removeTime)
+        if (_removeTimer >= removeTime)
         {
-            _removeTimer -= _removeTime;
+            _removeTimer -= removeTime;
             ChangeStack(-1);
         }
     }

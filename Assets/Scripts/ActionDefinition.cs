@@ -1,5 +1,4 @@
 ﻿using System;
-using test;
 using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
@@ -49,6 +48,8 @@ public enum BaseValueSource
 public class ActionDefinition
 {
     public TargetRule TargetRule;
+    public GameObject VisualEffect;
+    public AudioClip SoundEffect;
     public List<EffectDefinition> Effects;
 }
 
@@ -65,5 +66,5 @@ public class EffectDefinition
     public float ValueRatio = 1f;
 
     [EnableIf("EffectType", EffectType.StatusEffectApply)]
-    public StatusEffectDefinition StatusEffectToApply;
+    public StatusEffectData StatusEffectToApply;
 }

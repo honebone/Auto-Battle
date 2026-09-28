@@ -58,7 +58,10 @@ public class CharacterModel
 
     private IBattleField _battleField;
     private PassiveModel _passiveSkill;
-    //TODO:アイテム、状態異常のPassiveModelの管理
+    //TODO:アイテムのPassiveModelの管理
+    /// <summary>付与されている状態異常。同じ種類でも発生源ごとに別インスタンス。再現性のため順序が確定するListで持つ</summary>
+    private readonly List<StatusEffectModel> _statusEffects = new();
+    public IReadOnlyList<StatusEffectModel> StatusEffects => _statusEffects;
 
     public CharacterModel(CharacterData data, IBattleField battleField, CharaContext context)
     {
@@ -77,24 +80,25 @@ public class CharacterModel
         _isPlayer = context.IsPlayer;
         _position = context.Position;
 
+        // パッシブは取り外されないため、生成時に有効化して以降は常に有効のままにする
+        // HPの初期値に最大体力補正を反映させるため、HPの初期化より前に行う
+        if (data.PassiveSkillData != null)
+        {
+            _passiveSkill = data.PassiveSkillData.CreateModel(this, battleField);
+            _passiveSkill.Init();
+        }
+
         _hp = new(MaxHealth.IntValue);
         _shield = new(0);
         _ap = new(0);
         _naTimer = new(0);
-
-        if (data.PassiveSkillData != null)
-        {
-            _passiveSkill = data.PassiveSkillData.CreateModel(this, battleField);
-        }
     }
 
     /// <summary>
-    /// 戦闘開始時の初期化。パッシブの補正を反映した後にHP等をリセットする
+    /// 戦闘開始時の初期化。HP等の戦闘用の値をリセットする
     /// </summary>
     public void InitBattle()
     {
-        _passiveSkill?.Init();
-
         _hp.Value = MaxHealth.IntValue;
         _shield.Value = 0;
         _ap.Value = 0;
@@ -103,11 +107,29 @@ public class CharacterModel
     }
 
     /// <summary>
-    /// 戦闘終了時の後処理。パッシブの補正・購読を解除する
+    /// 戦闘終了時の後処理。状態異常をすべて解除し、パッシブに戦闘終了を通知する
     /// </summary>
     public void EndBattle()
     {
+        ClearStatusEffects();
+
+        _passiveSkill?.OnBattleEnd();
+    }
+
+    /// <summary>
+    /// キャラクターを完全に破棄する際の後処理(置き換え時など)。パッシブの補正・購読と状態異常をすべて解除する
+    /// </summary>
+    public void Dispose()
+    {
+        ClearStatusEffects();
+
         _passiveSkill?.Disable();
+    }
+
+    private void ClearStatusEffects()
+    {
+        foreach (var statusEffect in _statusEffects) statusEffect.Disable();
+        _statusEffects.Clear();
     }
 
     public void ManualUpdate(float deltaTime)
@@ -133,7 +155,46 @@ public class CharacterModel
         UpdateShieldLoss(deltaTime);
 
         _passiveSkill?.ManualUpdate(deltaTime);
-        //TODO:アイテム、状態異常のPassiveModelのManualUpdate
+        //TODO:アイテムのPassiveModelのManualUpdate
+
+        // ManualUpdate中に状態異常が追加される可能性があるため、indexでループする
+        for (int i = 0; i < _statusEffects.Count; i++) _statusEffects[i].ManualUpdate(deltaTime);
+        RemoveExpiredStatusEffects();
+    }
+
+    /// <summary>
+    /// 状態異常を付与する。同じ種類・同じ発生源のものが既にあればスタックを加算する
+    /// 実際に増減したスタック数と、付与後のスタック数を返す
+    /// </summary>
+    public StatusEffectApplyResult ApplyStatusEffect(StatusEffectData data, CharacterModel source, int stack)
+    {
+        if (data == null) throw new ArgumentNullException(nameof(data));
+
+        StatusEffectModel statusEffect = _statusEffects.Find(s => s.Data == data && s.Source == source);
+        if (statusEffect == null)
+        {
+            if (stack <= 0) return new StatusEffectApplyResult(data, 0, 0);
+
+            statusEffect = data.CreateStatusEffectModel(this, source, _battleField);
+            statusEffect.Init();
+            _statusEffects.Add(statusEffect);
+        }
+
+        // スタックが0になっても、ここでは除去しない(反復中の除去を避けるため、ManualUpdate末尾でまとめて除去)
+        int applied = statusEffect.ChangeStack(stack);
+        return new StatusEffectApplyResult(data, applied, statusEffect.Stack);
+    }
+
+    /// <summary>スタックが0になった状態異常を解除・除去する</summary>
+    private void RemoveExpiredStatusEffects()
+    {
+        for (int i = _statusEffects.Count - 1; i >= 0; i--)
+        {
+            if (!_statusEffects[i].IsExpired) continue;
+
+            _statusEffects[i].Disable();
+            _statusEffects.RemoveAt(i);
+        }
     }
 
     /// <summary>シールドの自然減少。毎秒 最大体力×ShieldLossOvertime 分を1ずつ減少させる</summary>
@@ -315,7 +376,8 @@ public class CharacterModel
         Vector2Int heal = Vector2Int.zero;
         int shield = 0;
         float ap = 0;
-        //TODO:付与した状態異常を記録
+        int statusEffectStack = 0;
+        List<StatusEffectApplyResult> statusEffects = null;
 
         //TODO:シード値をもとにした乱数の使用 攻撃しない場合はクリティカル判定処理をしない(無駄に乱数を使わないように)
         bool isCritical = actionParams.guaranteeCritical || (actionParams.canCritical && CriticalChance.FloatValue.Dice());
@@ -344,7 +406,15 @@ public class CharacterModel
                     ap += target.ChangeAP(effect.Value);
                     break;
                 case EffectType.StatusEffectApply:
-                    Debug.Log("状態異常付与は未実装");
+                    if (effect.StatusEffectToApply == null)
+                    {
+                        Debug.LogWarning($"{DisplayName}: 付与する状態異常が設定されていません");
+                        break;
+                    }
+                    StatusEffectApplyResult steResult = target.ApplyStatusEffect(effect.StatusEffectToApply, actionParams.Owner, (int)value);
+                    statusEffectStack += steResult.AppliedStack;
+                    statusEffects ??= new List<StatusEffectApplyResult>();
+                    statusEffects.Add(steResult);
                     break;
             }
         }
@@ -358,7 +428,9 @@ public class CharacterModel
             heal.x,
             heal.y,
             shield,
-            ap);
+            ap,
+            statusEffectStack,
+            statusEffects);
 
         _battleField.NotifyActionPerformed(result);
 
@@ -367,7 +439,7 @@ public class CharacterModel
         if (result.DealtDamage()) _battleField.InvokeTriggerAction(TriggerType.OnDamageDealt, result);
         if (result.Healed()) _battleField.InvokeTriggerAction(TriggerType.OnHealDealt, result);
         if (result.Shield > 0) _battleField.InvokeTriggerAction(TriggerType.OnShieldGranted, result);
-        //TODO:状態異常付与時
+        if (result.StatusEffectStack > 0) _battleField.InvokeTriggerAction(TriggerType.OnStatusEffectApplied, result);
         if (result.Killed) _battleField.InvokeTriggerAction(TriggerType.OnKilled, result);
 
 
@@ -391,6 +463,22 @@ public struct DamageResult
     }
 }
 
+public struct StatusEffectApplyResult
+{
+    public StatusEffectData Data;
+    /// <summary>実際に増減したスタック数(最大スタックで頭打ちの場合は0もありうる)</summary>
+    public int AppliedStack;
+    /// <summary>付与後のスタック数</summary>
+    public int CurrentStack;
+
+    public StatusEffectApplyResult(StatusEffectData data, int appliedStack, int currentStack)
+    {
+        Data = data;
+        AppliedStack = appliedStack;
+        CurrentStack = currentStack;
+    }
+}
+
 public struct ActionResult
 {
     public CharacterModel Owner;
@@ -406,7 +494,10 @@ public struct ActionResult
     public int OverHeal;
     public int Shield;
     public float AP;
-    //TODO:付与した状態異常を記録
+    /// <summary>付与した状態異常のスタック数の合計</summary>
+    public int StatusEffectStack;
+    /// <summary>状態異常ごとの付与結果(付与が無ければnull)</summary>
+    public List<StatusEffectApplyResult> StatusEffects;
 
     public ActionResult(
         CharacterModel owner,
@@ -417,7 +508,9 @@ public struct ActionResult
         int heal,
         int overHeal,
         int shield,
-        float ap)
+        float ap,
+        int statusEffectStack = 0,
+        List<StatusEffectApplyResult> statusEffects = null)
     {
         Owner = owner;
         Target = target;
@@ -430,6 +523,8 @@ public struct ActionResult
         OverHeal = overHeal;
         Shield = shield;
         AP = ap;
+        StatusEffectStack = statusEffectStack;
+        StatusEffects = statusEffects;
     }
 
     public bool DealtDamage() => HPDMG > 0 || ShieldDMG > 0;

@@ -1,6 +1,5 @@
 ﻿using NaughtyAttributes;
 using System.Collections.Generic;
-using test;
 using UnityEngine;
 
 public enum ActionSource { Other, NormalAttack, ActiveSkill, PassiveSkill }
@@ -35,10 +34,10 @@ public struct ActionParams
         Effects = new List<EffectParams>();
         foreach(var effect in effects)
         {
+            EffectParams effectParams;
             float value = effect.ValueSource == BaseValueSource.FixedValue ? effect.ValueRatio : owner.GetBaseValue(effect.ValueSource) * effect.ValueRatio;
-            EffectParams effectParams = new EffectParams(effect.EffectType, value);
+            effectParams = new EffectParams(effect.EffectType, value, effect.StatusEffectToApply);
 
-            //TODO:状態異常に対応
             Effects.Add(effectParams);
         }
 
@@ -60,13 +59,13 @@ public struct EffectParams
     public float Value;
 
     //状態異常付与効果のみ
-    public StatusEffectDefinition StatusEffectToApply;
+    public StatusEffectData StatusEffectToApply;
 
-    public  EffectParams(EffectType effectType,float value, StatusEffectDefinition statusEffectDefinition = null)
+    public  EffectParams(EffectType effectType,float value, StatusEffectData statusEffectData = null)
     {
         EffectType = effectType;
         Value = value;
-        StatusEffectToApply = statusEffectDefinition;
+        StatusEffectToApply = statusEffectData;
     }
 }
 

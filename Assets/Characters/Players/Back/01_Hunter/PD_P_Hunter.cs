@@ -7,24 +7,25 @@ public class PD_P_Hunter : PassiveData
 
     public override PassiveModel CreateModel(CharacterModel owner, IBattleField battleField)
     {
-        return new PM_P_Hunter(owner, this, battleField, MaxNACount);
+        return new PM_P_Hunter(owner, this, battleField);
     }
 }
 public class PM_P_Hunter : PassiveModel
 {
-    private int _maxNACount;
     private int _naCount = 0;
-    public PM_P_Hunter(CharacterModel owner, PassiveData data, IBattleField battleField, int maxNACount) : base(owner, data, battleField)
+
+    public PD_P_Hunter Data => (PD_P_Hunter)_data;
+
+    public PM_P_Hunter(CharacterModel owner, PassiveData data, IBattleField battleField) : base(owner, data, battleField)
     {
-        _maxNACount = maxNACount;
     }
 
     public override void ModifyAction(ref ActionParams actionParams)
     {
-        if (_naCount == _maxNACount)
+        if (_naCount == Data.MaxNACount)
         {
             actionParams.guaranteeCritical = true;
-            Debug.Log("確定クリティカル");
+            Debug.Log("遒ｺ螳壹け繝ｪ繝�繧｣繧ｫ繝ｫ");
         }
     }
 
@@ -32,8 +33,13 @@ public class PM_P_Hunter : PassiveModel
     {
         if (action.Owner == _owner && triggerType == TriggerType.OnNormalAttackDealt)
         {
-            if (_naCount == _maxNACount) _naCount = 0;
+            if (_naCount == Data.MaxNACount) _naCount = 0;
             else _naCount++;
         }
+    }
+
+    public override void OnBattleEnd()
+    {
+        _naCount = 0;
     }
 }

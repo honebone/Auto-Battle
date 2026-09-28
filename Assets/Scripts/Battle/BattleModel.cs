@@ -44,6 +44,8 @@ public class BattleModel : IBattleField
     public void SetCharacters(bool isPlayer, CharacterData front, CharacterData back)
     {
         List<CharacterModel> team = isPlayer ? _players : _enemies;
+        // パッシブは常に購読しているため、置き換える前に解除しておく
+        team.ForEach(chara => chara.Dispose());
         team.Clear();
 
         //GetTargetはリスト順を前衛優先として扱うため、前衛→後衛の順に追加する
