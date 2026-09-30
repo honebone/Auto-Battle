@@ -11,6 +11,8 @@ public class StatusEffectModel : PassiveModel
     public int Stack { get; private set; }
     public bool IsExpired => Stack <= 0;
 
+    private protected override PassiveIconType IconType => Data.IsBuff ? PassiveIconType.Buff : PassiveIconType.Debuff;
+
     public StatusEffectModel(CharacterModel owner, CharacterModel source, StatusEffectData data, IBattleField battleField) : base(owner, data, battleField)
     {
         Source = source;
@@ -24,6 +26,7 @@ public class StatusEffectModel : PassiveModel
 
         Stack += changed;
         OnStackChanged(changed);
+        _icon.SetText(Stack.ToString());
 
         return changed;
     }

@@ -51,6 +51,26 @@ public class ActionDefinition
     public GameObject VisualEffect;
     public AudioClip SoundEffect;
     public List<EffectDefinition> Effects;
+
+    public ActionPresentation Presentation => new ActionPresentation(VisualEffect, SoundEffect);
+}
+
+/// <summary>
+/// 行動の演出に必要な情報。defaultは演出なし。
+/// ActionParamsはActionDefinition以外からも生成されるため、ActionDefinitionではなくこちらを受け渡す
+/// </summary>
+[Serializable]
+public struct ActionPresentation
+{
+    /// <summary>行動の対象の位置に生成する演出</summary>
+    public GameObject VisualEffect;
+    public AudioClip SoundEffect;
+
+    public ActionPresentation(GameObject visualEffect, AudioClip soundEffect)
+    {
+        VisualEffect = visualEffect;
+        SoundEffect = soundEffect;
+    }
 }
 
 /// <summary>

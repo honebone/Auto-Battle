@@ -1,4 +1,5 @@
 using UnityEngine;
+using R3;
 
 [CreateAssetMenu(menuName = "PassiveData/Chara/Player/Hunter")]
 public class PD_P_Hunter : PassiveData
@@ -18,6 +19,7 @@ public class PM_P_Hunter : PassiveModel
 
     public PM_P_Hunter(CharacterModel owner, PassiveData data, IBattleField battleField) : base(owner, data, battleField)
     {
+       
     }
 
     public override void ModifyAction(ref ActionParams actionParams)
@@ -33,13 +35,24 @@ public class PM_P_Hunter : PassiveModel
     {
         if (action.Owner == _owner && triggerType == TriggerType.OnNormalAttackDealt)
         {
-            if (_naCount == Data.MaxNACount) _naCount = 0;
-            else _naCount++;
+            if (_naCount == Data.MaxNACount) SetCount(0);
+            else SetCount(_naCount + 1);         
         }
+    }
+    public override void OnBattleStart()
+    {
+        _icon.SetVisible(true);
     }
 
     public override void OnBattleEnd()
     {
-        _naCount = 0;
+        SetCount(0);
+    }
+
+    private void SetCount(int value)
+    {
+        _naCount = value;
+        _icon.SetGauge((float)value / Data.MaxNACount);
+        _icon.SetActive(value == Data.MaxNACount);
     }
 }

@@ -31,8 +31,13 @@ public class BattleTester : MonoBehaviour
     [Tooltip("即時シミュレーション時の1ステップの秒数")]
     [SerializeField, Min(0.001f)] private float _simulateDeltaTime = 1f / 60f;
 
+    [Header("View")]
+    [Tooltip("未設定ならViewを介さずに戦闘を行う。即時シミュレーション時は設定されていても使わない")]
+    [SerializeField] private BattleView _battleView;
+
     private BattleModel _battle;
     private BattleLogger _logger;
+    private BattlePresenter _presenter;
 
     public BattleModel Battle => _battle;
 
@@ -50,22 +55,30 @@ public class BattleTester : MonoBehaviour
     private void OnDestroy()
     {
         _logger?.Dispose();
+        _presenter?.Dispose();
     }
 
     /// <summary>
     /// インスペクタで指定した編成で戦闘を開始する(Update毎に進行)
     /// </summary>
     [Button]
-    public void StartBattle()
+    public void StartBattle() => StartBattle(true);
+
+    /// <param name="bindView">falseならViewを介さずに進行する</param>
+    private void StartBattle(bool bindView)
     {
         _logger?.Dispose();
         _logger = null;
+        _presenter?.Dispose();
+        _presenter = null;
 
         _battle = new BattleModel(_overrideTimeLimit ? _timeLimitOverride : null);
         _battle.SetCharacters(true, _playerFront, _playerBack);
         _battle.SetCharacters(false, _enemyFront, _enemyBack);
 
         if (_enableLog) _logger = new BattleLogger(_battle, _logColors);
+        //SetCharactersの後、StartBattleの前に紐づける
+        if (bindView && _battleView != null) _presenter = new BattlePresenter(_battle, _battleView);
 
         _battle.StartBattle();
     }
@@ -76,7 +89,7 @@ public class BattleTester : MonoBehaviour
     [Button]
     public void SimulateInstant()
     {
-        StartBattle();
+        StartBattle(false);
 
         //制限時間を超えれば必ずTimeUpで終了するが、念のため上限を設ける
         int maxSteps = Mathf.CeilToInt(_battle.TimeLimit / _simulateDeltaTime) + 10;

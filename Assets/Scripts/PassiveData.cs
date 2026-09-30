@@ -7,7 +7,7 @@ using NaughtyAttributes;
 /// </summary>
 public enum TriggerType
 {
-    CombatStart,
+    BattleStart,
 
     OnNormalAttackDealt,
     OnActiveSkillCast,
@@ -27,7 +27,7 @@ public enum TriggerType
     OnKilled,
     //OnDied,
 
-    NoAction = CombatStart,
+    NoAction = BattleStart,
     //Active = OnNormalAttackDealt | OnActiveSkillCast | OnDamageDealt | OnHealDealt | OnShieldGranted | OnStatusEffectApplied | OnKilled, //何かをした
     //Passive = OnDamageReceived | OnHealReceived | OnShieldReceived | OnStatusEffectApplied | OnDied, //何かをされた
 }

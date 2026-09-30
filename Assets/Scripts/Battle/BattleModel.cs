@@ -63,7 +63,7 @@ public class BattleModel : IBattleField
         _enemies.ForEach(enemy => enemy.InitBattle());
 
         BattleStarted?.Invoke();
-        InvokeTriggerAction(TriggerType.CombatStart, default);
+        InvokeTriggerAction(TriggerType.BattleStart, default);
 
         CheckResult();
     }

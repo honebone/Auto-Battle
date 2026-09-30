@@ -25,11 +25,14 @@ public struct ActionParams
     /// <summary>シールド量増加倍率 (0.2 = +20%)</summary>
     public float BonusShield;
 
-    public ActionParams(CharacterModel owner, ActionSource source, CharacterModel target, List<EffectDefinition> effects)
+    public ActionPresentation Presentation;
+
+    public ActionParams(CharacterModel owner, ActionSource source, CharacterModel target, List<EffectDefinition> effects, ActionPresentation presentation = default)
     {
         Owner = owner;
         Source = source;
         Target = target;
+        Presentation = presentation;
 
         Effects = new List<EffectParams>();
         foreach(var effect in effects)

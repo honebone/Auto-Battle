@@ -63,6 +63,22 @@ public class CharacterModel
     private readonly List<StatusEffectModel> _statusEffects = new();
     public IReadOnlyList<StatusEffectModel> StatusEffects => _statusEffects;
 
+    /// <summary>パッシブ(状態異常を含む)が有効になったときに通知(アイコン表示用)</summary>
+    public event Action<PassiveModel> PassiveEnabled;
+    /// <summary>パッシブ(状態異常を含む)が無効になったときに通知</summary>
+    public event Action<PassiveModel> PassiveDisabled;
+
+    /// <summary>現在有効なパッシブ(パッシブスキル + 状態異常)</summary>
+    public IEnumerable<PassiveModel> ActivePassives
+    {
+        get
+        {
+            if (_passiveSkill != null) yield return _passiveSkill;
+            //TODO:アイテムのPassiveModel
+            foreach (var statusEffect in _statusEffects) yield return statusEffect;
+        }
+    }
+
     public CharacterModel(CharacterData data, IBattleField battleField, CharaContext context)
     {
         Data = data;
@@ -104,6 +120,9 @@ public class CharacterModel
         _ap.Value = 0;
         _naTimer.Value = 0;
         _shieldTimer = 0;
+
+        _passiveSkill?.OnBattleStart();
+        //TODO:アイテムのOnBattleStart
     }
 
     /// <summary>
@@ -114,6 +133,7 @@ public class CharacterModel
         ClearStatusEffects();
 
         _passiveSkill?.OnBattleEnd();
+        //TODO:アイテムのOnBattleEnd
     }
 
     /// <summary>
@@ -123,12 +143,20 @@ public class CharacterModel
     {
         ClearStatusEffects();
 
-        _passiveSkill?.Disable();
+        if (_passiveSkill != null)
+        {
+            _passiveSkill.Disable();
+            PassiveDisabled?.Invoke(_passiveSkill);
+        }
     }
 
     private void ClearStatusEffects()
     {
-        foreach (var statusEffect in _statusEffects) statusEffect.Disable();
+        foreach (var statusEffect in _statusEffects)
+        {
+            statusEffect.Disable();
+            PassiveDisabled?.Invoke(statusEffect);
+        }
         _statusEffects.Clear();
     }
 
@@ -178,6 +206,7 @@ public class CharacterModel
             statusEffect = data.CreateStatusEffectModel(this, source, _battleField);
             statusEffect.Init();
             _statusEffects.Add(statusEffect);
+            PassiveEnabled?.Invoke(statusEffect);
         }
 
         // スタックが0になっても、ここでは除去しない(反復中の除去を避けるため、ManualUpdate末尾でまとめて除去)
@@ -192,8 +221,10 @@ public class CharacterModel
         {
             if (!_statusEffects[i].IsExpired) continue;
 
-            _statusEffects[i].Disable();
+            StatusEffectModel statusEffect = _statusEffects[i];
+            statusEffect.Disable();
             _statusEffects.RemoveAt(i);
+            PassiveDisabled?.Invoke(statusEffect);
         }
     }
 
@@ -344,7 +375,8 @@ public class CharacterModel
             this,
             actionSource,
             target,
-            actionDefinition.Effects
+            actionDefinition.Effects,
+            actionDefinition.Presentation
         );
 
         return true;
@@ -430,7 +462,8 @@ public class CharacterModel
             shield,
             ap,
             statusEffectStack,
-            statusEffects);
+            statusEffects,
+            actionParams.Presentation);
 
         _battleField.NotifyActionPerformed(result);
 
@@ -498,6 +531,7 @@ public struct ActionResult
     public int StatusEffectStack;
     /// <summary>状態異常ごとの付与結果(付与が無ければnull)</summary>
     public List<StatusEffectApplyResult> StatusEffects;
+    public ActionPresentation Presentation;
 
     public ActionResult(
         CharacterModel owner,
@@ -510,7 +544,8 @@ public struct ActionResult
         int shield,
         float ap,
         int statusEffectStack = 0,
-        List<StatusEffectApplyResult> statusEffects = null)
+        List<StatusEffectApplyResult> statusEffects = null,
+        ActionPresentation presentation = default)
     {
         Owner = owner;
         Target = target;
@@ -525,6 +560,7 @@ public struct ActionResult
         AP = ap;
         StatusEffectStack = statusEffectStack;
         StatusEffects = statusEffects;
+        Presentation = presentation;
     }
 
     public bool DealtDamage() => HPDMG > 0 || ShieldDMG > 0;

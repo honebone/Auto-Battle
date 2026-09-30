@@ -391,6 +391,7 @@ MonoBehaviour:
     Buff: {r: 0.7, g: 1, b: 0.3, a: 1}
     Debuff: {r: 0.85, g: 0.35, b: 0.6, a: 1}
   _simulateDeltaTime: 0.016666668
+  _battleView: {fileID: 0}
 --- !u!4 &1965169538
 Transform:
   m_ObjectHideFlags: 0
