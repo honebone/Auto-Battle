@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: P_B02_Sister_Passive
   m_EditorClassIdentifier: 
   PassiveName: 
+  PassiveIcon: {fileID: 0}
   MaxHealthMul: 0
   AttackPowerMul: 0
   MagicPowerMul: 0
@@ -21,11 +22,14 @@ MonoBehaviour:
   CriticalChance: 0
   Drain: 0
   AutoSubscribe: 1
-  TriggerType: 1
-  ObserveTargetType: 0
-  ObserveActionOwner: 1
+  TriggerCondition:
+    TriggerType: 1
+    ObserveType_Owner: 0
+    ObserveType_Target: 1
   ActionDefinition:
     TargetRule: 7
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
     Effects:
     - EffectType: 1
       ValueSource: 1

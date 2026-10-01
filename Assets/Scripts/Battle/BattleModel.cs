@@ -13,6 +13,14 @@ public enum BattleResult
     TimeUp,
 }
 
+[Serializable]
+public struct TriggerCondition
+{
+    public TriggerType TriggerType;
+    public CharaRelation ObserveType_Owner;
+    public CharaRelation ObserveType_Target;
+}
+
 public class BattleModel : IBattleField
 {
     private List<CharacterModel> _players = new List<CharacterModel>();
@@ -143,27 +151,50 @@ public class BattleModel : IBattleField
         return alive[UnityEngine.Random.Range(0, alive.Count)];
     }
 
+    //public bool CheckObserveTarget(
+    //    CharacterModel requester,
+    //    ActionResult actionResult,
+    //    TriggerType triggerType,
+    //    CharaRelation observeTargetType,
+    //    bool observeActionOwner
+    //    )
+    //{
+    //    if (triggerType == TriggerType.NoAction) return true;
+    //    //CharacterModel checkTarget = triggerType == TriggerType.Active ? actionResult.Owner : 
+    //    //                             triggerType == TriggerType.Passive ? actionResult.Target : null;
+
+    //    CharacterModel checkTarget = observeActionOwner ? actionResult.Owner : actionResult.Target;
+
+    //    return observeTargetType switch
+    //    {
+    //        CharaRelation.Self => checkTarget == requester,
+    //        CharaRelation.Anyone => true,
+    //        CharaRelation.AnyAllies => checkTarget.IsPlayer == requester.IsPlayer,
+    //        CharaRelation.OtherAlly => checkTarget != requester && checkTarget.IsPlayer == requester.IsPlayer,
+    //        CharaRelation.AnyOpponents => checkTarget.IsPlayer != requester.IsPlayer,
+    //        _ => throw new ArgumentOutOfRangeException(nameof(observeTargetType)),
+    //    };
+    //}
+
     public bool CheckObserveTarget(
-        CharacterModel requester, 
-        ActionResult actionResult,
-        TriggerType triggerType, 
-        TriggerObserveTargetType observeTargetType,
-        bool observeActionOwner
-        )
+       CharacterModel requester,
+       ActionResult actionResult,
+       TriggerCondition triggerCondition
+       )
     {
-        if (triggerType == TriggerType.NoAction) return true;
-        //CharacterModel checkTarget = triggerType == TriggerType.Active ? actionResult.Owner : 
-        //                             triggerType == TriggerType.Passive ? actionResult.Target : null;
+        if (triggerCondition.TriggerType == TriggerType.NoAction) return true;
+        return CheckRelation(requester, actionResult.Owner, triggerCondition.ObserveType_Owner) && CheckRelation(requester, actionResult.Target, triggerCondition.ObserveType_Target);
+    }
 
-        CharacterModel checkTarget = observeActionOwner ? actionResult.Owner : actionResult.Target;
-
+    private bool CheckRelation(CharacterModel requester,CharacterModel checkTarget, CharaRelation observeTargetType)
+    {
         return observeTargetType switch
         {
-            TriggerObserveTargetType.Self => checkTarget == requester,
-            TriggerObserveTargetType.Anyone => true,
-            TriggerObserveTargetType.AnyAllies => checkTarget.IsPlayer == requester.IsPlayer,
-            TriggerObserveTargetType.OtherAlly => checkTarget != requester && checkTarget.IsPlayer == requester.IsPlayer,
-            TriggerObserveTargetType.AnyOpponents => checkTarget.IsPlayer != requester.IsPlayer,
+            CharaRelation.Self => checkTarget == requester,
+            CharaRelation.Anyone => true,
+            CharaRelation.AnyAllies => checkTarget.IsPlayer == requester.IsPlayer,
+            CharaRelation.OtherAlly => checkTarget != requester && checkTarget.IsPlayer == requester.IsPlayer,
+            CharaRelation.AnyOpponents => checkTarget.IsPlayer != requester.IsPlayer,
             _ => throw new ArgumentOutOfRangeException(nameof(observeTargetType)),
         };
     }

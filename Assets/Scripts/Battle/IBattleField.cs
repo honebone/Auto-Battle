@@ -9,8 +9,11 @@ public interface IBattleField
     event Action<TriggerType, ActionResult> TriggerAction;
 
     CharacterModel GetTarget(CharacterModel requester, TargetRule targetRule);
-
-    bool CheckObserveTarget(CharacterModel requester, ActionResult actionResult, TriggerType triggerType, TriggerObserveTargetType observeTargetType, bool observeActionOwner);
+    bool CheckObserveTarget(
+       CharacterModel requester,
+       ActionResult actionResult,
+       TriggerCondition triggerCondition
+       );
     void InvokeTriggerAction(TriggerType triggerType, ActionResult actionResult);
     /// <summary>行動が解決されたことを通知する(ログ・統計用)</summary>
     void NotifyActionPerformed(ActionResult actionResult);

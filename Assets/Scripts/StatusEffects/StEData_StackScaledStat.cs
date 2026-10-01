@@ -22,9 +22,9 @@ public class StEModel_StackScaledStat : StatusEffectModel
 
     public override void Disable()
     {
-        ApplyStatusModifier(-Stack);
+        _owner.ApplyStatusModifier(_data.StatusMod, -Stack);
         Unsubscribe();
     }
 
-    private protected override void OnStackChanged(int changed) => ApplyStatusModifier(changed);
+    private protected override void OnStackChanged(int changed) => _owner.ApplyStatusModifier(_data.StatusMod, changed);
 }

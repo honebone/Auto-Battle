@@ -13,19 +13,24 @@ MonoBehaviour:
   m_Name: StE_Hunter
   m_EditorClassIdentifier: 
   PassiveName: "\u901F\u5C04"
-  MaxHealthMul: 0
-  AttackPowerMul: 0
-  MagicPowerMul: 0
-  AttackSpeedMul: 4
-  CastSpeedMul: 0
-  CriticalChance: 0
-  Drain: 0
+  PassiveIcon: {fileID: 0}
+  StatusMod:
+    MaxHealthMul: 0
+    AttackPowerMul: 0
+    MagicPowerMul: 0
+    AttackSpeedMul: 4
+    CastSpeedMul: 0
+    CriticalChance: 0
+    Drain: 0
   AutoSubscribe: 0
-  TriggerType: 0
-  ObserveTargetType: 0
-  ObserveActionOwner: 0
+  TriggerCondition:
+    TriggerType: 0
+    ObserveType_Owner: 0
+    ObserveType_Target: 0
   ActionDefinition:
     TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
     Effects: []
   MaxStack: 1
   IsBuff: 1

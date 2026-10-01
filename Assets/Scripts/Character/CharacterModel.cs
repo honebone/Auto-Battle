@@ -332,6 +332,21 @@ public class CharacterModel
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
+    /// <summary>補正値にscaleを掛けて反映する(1で付与、-1で解除)</summary>
+    public void ApplyStatusModifier(CharaStatusMod mod, float scale)
+    {
+        if (mod == null) return;
+
+        MaxHealth.AddMultiplier(mod.MaxHealthMul * scale);
+        AttackPower.AddMultiplier(mod.AttackPowerMul * scale);
+        MagicPower.AddMultiplier(mod.MagicPowerMul * scale);
+        AttackSpeed.AddMultiplier(mod.AttackSpeedMul * scale);
+        CastSpeed.AddMultiplier(mod.CastSpeedMul * scale);
+
+        CriticalChance.AddFlat(mod.CriticalChance * scale);
+        Drain.AddFlat(mod.Drain * scale);
+    }
+
     public float GetBaseValue(BaseValueSource type) => type switch
     {
         BaseValueSource.AttackPower => AttackPower.FloatValue,

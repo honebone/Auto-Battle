@@ -19,7 +19,7 @@ public class PassiveModel
 
     public virtual void Init()
     {
-        ApplyStatusModifier(1f);
+        _owner.ApplyStatusModifier(_data.StatusMod, 1f);
         Subscribe();
     }
 
@@ -30,10 +30,10 @@ public class PassiveModel
 
     public virtual void ModifyAction(ref ActionParams actionParams) { }
 
-    public void TriggerActionFromDefinition(TriggerType triggerType, ActionResult action)
+    public void TriggerActionFromDefinition(TriggerType triggerType, ActionResult result)
     {
-        if (triggerType != _data.TriggerType) return;
-        if (!_battleField.CheckObserveTarget(_owner, action, triggerType, _data.ObserveTargetType, _data.ObserveActionOwner)) return;
+        if (triggerType != _data.TriggerCondition.TriggerType) return;
+        if (!_battleField.CheckObserveTarget(_owner, result, _data.TriggerCondition)) return;
         _owner.PerformActionsFromDefinition(ActionSource.PassiveSkill, _data.ActionDefinition);
     }
     public virtual void OnBattleStart() { }
@@ -48,7 +48,7 @@ public class PassiveModel
 
     public virtual void Disable()
     {
-        ApplyStatusModifier(-1f);
+        _owner.ApplyStatusModifier(_data.StatusMod, -1f);
         Unsubscribe();
 
         _icon.Release();
@@ -78,18 +78,5 @@ public class PassiveModel
         if (_data.AutoSubscribe) _battleField.TriggerAction -= TriggerActionFromDefinition;
         _battleField.TriggerAction -= OnTriggered;
         _owner.ModifyAction -= ModifyAction;
-    }
-
-    /// <summary>PassiveDataの補正値にscaleを掛けて反映する(1で付与、-1で解除)</summary>
-    private protected void ApplyStatusModifier(float scale)
-    {
-        _owner.MaxHealth.AddMultiplier(_data.MaxHealthMul * scale);
-        _owner.AttackPower.AddMultiplier(_data.AttackPowerMul * scale);
-        _owner.MagicPower.AddMultiplier(_data.MagicPowerMul * scale);
-        _owner.AttackSpeed.AddMultiplier(_data.AttackSpeedMul * scale);
-        _owner.CastSpeed.AddMultiplier(_data.CastSpeedMul * scale);
-
-        _owner.CriticalChance.AddFlat(_data.CriticalChance * scale);
-        _owner.Drain.AddFlat(_data.Drain * scale);
     }
 }
