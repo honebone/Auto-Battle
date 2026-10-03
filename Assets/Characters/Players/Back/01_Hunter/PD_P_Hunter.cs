@@ -27,7 +27,6 @@ public class PM_P_Hunter : PassiveModel
         if (_naCount == Data.MaxNACount)
         {
             actionParams.guaranteeCritical = true;
-            Debug.Log("確定クリティカル");
         }
     }
 

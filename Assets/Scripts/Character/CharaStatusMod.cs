@@ -15,4 +15,8 @@ public class CharaStatusMod
     [Header("実数補正 (0.1 = 10%)")]
     public float CriticalChance;
     public float Drain;
+
+    public bool Stun;
+    public bool Bind;
+    public bool Fear;
 }

@@ -44,6 +44,16 @@ public class CharacterModel
     public ReadOnlyReactiveProperty<float> NATimer => _naTimer;
     private readonly ReactiveProperty<float> _naTimer;
 
+    //通常攻撃、詠唱不可
+    public ReadOnlyReactiveProperty<int> Stun => _stun;
+    private readonly ReactiveProperty<int> _stun;
+    //通常攻撃不可
+    public ReadOnlyReactiveProperty<int> Bind => _bind;
+    private readonly ReactiveProperty<int> _bind;
+    //詠唱不可
+    public ReadOnlyReactiveProperty<int> Fear => _fear;
+    private readonly ReactiveProperty<int> _fear;
+
     private float _shieldTimer;
 
     public bool IsPlayer => _isPlayer;
@@ -108,6 +118,10 @@ public class CharacterModel
         _shield = new(0);
         _ap = new(0);
         _naTimer = new(0);
+
+        _stun = new(0);
+        _bind = new(0);
+        _fear = new(0);
     }
 
     /// <summary>
@@ -164,20 +178,24 @@ public class CharacterModel
     {
         if (!IsAlive) return;
 
-        _naTimer.Value += deltaTime;
-        if (_naTimer.Value >= 1f / AttackSpeed.FloatValue)
+        if (_stun.Value == 0&&_bind.Value == 0)
         {
-            _naTimer.Value -= 1f / AttackSpeed.FloatValue;
-            PerformNormalAttack();
+            _naTimer.Value += deltaTime;
+            if (_naTimer.Value >= 1f / AttackSpeed.FloatValue)
+            {
+                _naTimer.Value -= 1f / AttackSpeed.FloatValue;
+                PerformNormalAttack();
+            }
         }
 
-        if (!IsAlive) return;
-
-        _ap.Value += CastSpeed.FloatValue * deltaTime;
-        if (_ap.Value >= 100)
+        if(_stun.Value == 0 && _fear.Value == 0)
         {
-            _ap.Value -= 100;
-            PerformActiveSkill();
+            _ap.Value += CastSpeed.FloatValue * deltaTime;
+            if (_ap.Value >= 100)
+            {
+                _ap.Value -= 100;
+                PerformActiveSkill();
+            }
         }
 
         UpdateShieldLoss(deltaTime);
@@ -345,6 +363,10 @@ public class CharacterModel
 
         CriticalChance.AddFlat(mod.CriticalChance * scale);
         Drain.AddFlat(mod.Drain * scale);
+
+        if (mod.Stun) _stun.Value += (int)scale;
+        if (mod.Bind) _bind.Value += (int)scale;
+        if (mod.Fear) _fear.Value += (int)scale;
     }
 
     public float GetBaseValue(BaseValueSource type) => type switch

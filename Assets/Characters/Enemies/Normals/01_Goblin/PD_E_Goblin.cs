@@ -27,6 +27,7 @@ public class PM_E_Goblin : PassiveModel
         {
             _owner.AttackSpeed.AddMultiplier(Data.ASGrowth);
             _count++;
+            Debug.Log("ASëùâ¡");
         }
     }
 
