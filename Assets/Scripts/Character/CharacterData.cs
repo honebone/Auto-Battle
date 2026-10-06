@@ -1,6 +1,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum SynergyTag
+{
+    Survive,
+    NormalAttack,
+    ActiveSkill,
+
+    MaxHealth,
+    Defence,
+    Shield,
+    AttackPower,
+    MagicPowner,
+    AttackSpeed,
+    CastSpeed,
+    Critical,
+    Drain,
+
+    HaveLowHealth,
+    HaveHighHealth,
+}
+
+[System.Serializable]
+public struct SynergyParams
+{
+    public SynergyTag Tag;
+    public int Supply;
+    public int Demand;
+}
+
+public enum RoleType { Fighter, Tank, Dealer, Support, None }
 public enum FrontlineType { Front, Back, None } // プレイヤーキャラのみ有効。敵はNone
 
 /// <summary>
@@ -25,5 +54,5 @@ public class CharacterData : ScriptableObject
     public ActionDefinition ActiveSkillDefinition;
 
     public PassiveData PassiveSkillData;
-    //public List<SynergyTag> Tags;
+    public List<SynergyParams> Synergies;
 }

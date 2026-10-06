@@ -211,14 +211,19 @@ public class CharacterModel
     }
 
     /// <summary>
-    /// 状態異常を付与する。同じ種類・同じ発生源のものが既にあればスタックを加算する
+    /// 状態異常を付与する。StackPolicyに従い、加算先となる既存のものがあればスタックを加算する
+    /// (Shared: 同じ種類なら発生源を問わず加算 / PerSource: 同じ種類・同じ発生源のものにのみ加算)
     /// 実際に増減したスタック数と、付与後のスタック数を返す
     /// </summary>
     public StatusEffectApplyResult ApplyStatusEffect(StatusEffectData data, CharacterModel source, int stack)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
 
-        StatusEffectModel statusEffect = _statusEffects.Find(s => s.Data == data && s.Source == source);
+        StatusEffectModel statusEffect = data.StackPolicy switch
+        {
+            StackPolicy.PerSource => _statusEffects.Find(s => s.Data == data && s.Source == source),
+            _ => _statusEffects.Find(s => s.Data == data),
+        };
         if (statusEffect == null)
         {
             if (stack <= 0) return new StatusEffectApplyResult(data, 0, 0);
@@ -487,6 +492,13 @@ public class CharacterModel
                     statusEffectStack += steResult.AppliedStack;
                     statusEffects ??= new List<StatusEffectApplyResult>();
                     statusEffects.Add(steResult);
+                    break;
+                case EffectType.FixedDamage:
+
+                    DamageResult fdResult = target.TakeDamage(value.ToInt());
+                    damageResult.HPDMG += fdResult.HPDMG;
+                    damageResult.ShieldDMG += fdResult.ShieldDMG;
+                    damageResult.Killed |= fdResult.Killed;
                     break;
             }
         }

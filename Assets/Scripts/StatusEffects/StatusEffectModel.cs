@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 状態異常のランタイムインスタンス。同じ種類でも発生源(Source)ごとに別インスタンスとして管理する。
+/// 状態異常のランタイムインスタンス。StackPolicyがPerSourceの場合は発生源(Source)ごとに別インスタンスとして管理する。
+/// Sharedの場合は種類ごとに1インスタンスで、Sourceは最初に付与したキャラとなる。
 /// スタックが0になったら IsExpired となり、CharacterModel側で除去される。
 /// </summary>
 public class StatusEffectModel : PassiveModel

@@ -10,6 +10,7 @@ public enum EffectType
     ShieldGrant,        // シールド付与
     SpChange,           // SP増加/減少
     StatusEffectApply,  // 状態異常の付与
+    FixedDamage,        //与ダメージや対象の防御力などに依存しないダメージ
 }
 
 public enum TargetRule

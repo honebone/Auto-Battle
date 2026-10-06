@@ -1,16 +1,8 @@
 using UnityEngine;
 
-public class ItemModel : MonoBehaviour
+//TODO:そもそもItemModelが必要かを考える
+//アイテムの具象クラスはPassiveModelを継承するだけでいいのでは？
+public class ItemModel : PassiveModel
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   public ItemModel(CharacterModel owner, StatusEffectData data, IBattleField battleField):base(owner, data, battleField) { }
 }
