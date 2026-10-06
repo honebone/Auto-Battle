@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: StE_Bind
   m_EditorClassIdentifier: 
   PassiveName: "\u675F\u7E1B"
-  PassiveIcon: {fileID: 0}
+  PassiveIcon: {fileID: 21300000, guid: 8671e83780d1e0c46a73f2b9a06cd40d, type: 3}
   StatusMod:
     MaxHealthMul: 0
     AttackPowerMul: 0

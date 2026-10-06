@@ -13,18 +13,26 @@ MonoBehaviour:
   m_Name: P_B01_Hunter_Pasive
   m_EditorClassIdentifier: 
   PassiveName: 
-  MaxHealthMul: 0
-  AttackPowerMul: 0
-  MagicPowerMul: 0
-  AttackSpeedMul: 0
-  CastSpeedMul: 0
-  CriticalChance: 0
-  Drain: 0
+  PassiveIcon: {fileID: 0}
+  StatusMod:
+    MaxHealthMul: 0
+    AttackPowerMul: 0
+    MagicPowerMul: 0
+    AttackSpeedMul: 0
+    CastSpeedMul: 0
+    CriticalChance: 0
+    Drain: 0
+    Stun: 0
+    Bind: 0
+    Fear: 0
   AutoSubscribe: 0
-  TriggerType: 0
-  ObserveTargetType: 0
-  ObserveActionOwner: 0
+  TriggerCondition:
+    TriggerType: 0
+    ObserveType_Owner: 0
+    ObserveType_Target: 0
   ActionDefinition:
     TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
     Effects: []
-  MaxNACount: 2
+  MaxNACount: 3

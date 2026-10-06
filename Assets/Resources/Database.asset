@@ -14,3 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BaseCriticalChance: 0.1
   BaseCriticalDamageRate: 0.75
+  ShieldLossOvertime: 0.05
+  BattleTimeLimit: 45
+  ColorRef:
+    HP: {r: 0.31764707, g: 0.9607843, b: 0.2784314, a: 1}
+    AttackPower: {r: 0, g: 0, b: 0, a: 0}
+    MagicPownr: {r: 0, g: 0, b: 0, a: 0}
+    AttackSpeed: {r: 1, g: 0.85882354, b: 0.49411765, a: 1}
+    CastSpeed: {r: 0, g: 0, b: 0, a: 0}
+    CriticalChance: {r: 0, g: 0, b: 0, a: 0}
+    CriticalDamage: {r: 0, g: 0, b: 0, a: 0}
+    Drain: {r: 0, g: 0, b: 0, a: 0}
+    Shield: {r: 0, g: 0, b: 0, a: 0}

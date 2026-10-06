@@ -33,5 +33,7 @@ public class StEModel_RemoveStackOvertime : StatusEffectModel
             _removeTimer -= removeTime;
             ChangeStack(-1);
         }
+
+        _icon.SetGauge(1 - _removeTimer / removeTime);
     }
 }

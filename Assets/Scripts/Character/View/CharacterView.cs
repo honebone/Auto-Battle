@@ -1,5 +1,6 @@
-using UnityEngine;
 using DG.Tweening;
+using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// キャラクター1体分の表示。Modelは参照せず、CharacterPresenterから呼ばれるメソッドのみを持つ
@@ -7,14 +8,34 @@ using DG.Tweening;
 /// </summary>
 public class CharacterView : MonoBehaviour
 {
+    [SerializeField] private bool _isEnemy;
     [Header("パッシブアイコン")]
     [SerializeField] private PassiveIconView _passiveIconPrefab;
     [SerializeField] private Transform _passiveIconRoot;
 
+    [SerializeField] private SpriteRenderer _charaSprite;
+    [SerializeField] private Image _hpBar;
+    [SerializeField] private Image _shieldBar;
+    [SerializeField] private Image _naBar;
+    [SerializeField] private Image _castBar;
+
+    [SerializeField] private float _naDur;
+    [SerializeField] private float _naMove;
+    [SerializeField] private Ease _naEase1;
+    [SerializeField] private Ease _naEase2;
+    [SerializeField] private float _castDur;
+    [SerializeField] private float _castMove;
+    [SerializeField] private Ease _castEase1;
+    [SerializeField] private Ease _castEase2;
+
+    private Sequence _seq_na;
+    private Sequence _seq_cast;
+
     /// <summary>キャラに応じた見た目の設定</summary>
     public void Setup(CharacterData data)
     {
-        //TODO:キャラに応じたSpriteの設定
+        if (data.CharaSprite != null) _charaSprite.sprite = data.CharaSprite;
+        _charaSprite.flipX = _isEnemy;
     }
 
     /// <summary>キャラが存在しない枠は非表示にする</summary>
@@ -26,36 +47,45 @@ public class CharacterView : MonoBehaviour
     #region ゲージ
     public void SetHP(int current, int max)
     {
-        //TODO:HPゲージの表示
+        _hpBar.fillAmount = (float)current / max;
     }
 
     public void SetShield(int current, int max)
     {
-        //TODO:Shieldゲージの表示
+        _shieldBar.fillAmount = (float)current / max;
     }
 
     /// <param name="ratio">0-1</param>
     public void SetAP(float ratio)
     {
-        //TODO:APゲージの表示
+        _castBar.fillAmount = ratio;
     }
 
     /// <param name="ratio">次の通常攻撃までの進行度 0-1</param>
     public void SetNATimer(float ratio)
     {
-        //TODO:NATimerゲージの表示
+        _naBar.fillAmount  = ratio;
     }
     #endregion
 
     #region 演出
     public void PlayNormalAttack()
     {
-        //TODO:攻撃時のアニメーション
+        if (_seq_na != null) _seq_na.Kill(true);
+        float move = _isEnemy ? -_naMove : _naMove;
+        _seq_na = DOTween.Sequence();
+        _seq_na.Append(_charaSprite.transform.DOLocalMoveX(move, _naDur / 2f).SetEase(_naEase1));
+        _seq_na.Append(_charaSprite.transform.DOLocalMoveX(0, _naDur / 2f).SetEase(_naEase2));
+        _seq_na.Play();
     }
 
     public void PlayActiveSkill()
     {
-        //TODO:アクティブ発動時のアニメーション
+        if (_seq_cast != null) _seq_cast.Kill(true);
+        _seq_cast = DOTween.Sequence();
+        _seq_cast.Append(_charaSprite.transform.DOLocalMoveY(_castMove, _castDur / 2f).SetEase(_castEase1));
+        _seq_cast.Append(_charaSprite.transform.DOLocalMoveY(0, _castDur / 2f).SetEase(_castEase2));
+        _seq_cast.Play();
     }
 
     public void PlayDeath()

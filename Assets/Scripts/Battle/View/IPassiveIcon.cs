@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public  enum PassiveIconType { Other, Buff, Debuff}
+public enum PassiveIconType { Other, Buff, Debuff, Unique }
 
 public interface IPassiveIcon
 {

@@ -11,8 +11,10 @@ public class CharacterData : ScriptableObject
 {
     public string CharacterName;
     public FrontlineType Frontline;
+    public Sprite CharaSprite;
 
     public float BaseMaxHealth;
+    public float BaseDefence;
     public float BaseAttackPower;
     public float BaseMagicPower;
     public float BaseAttackSpeed;

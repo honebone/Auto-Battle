@@ -23,6 +23,7 @@ public class CharacterModel
     public CharacterData Data { get; }
 
     public ClampedStatValue MaxHealth { get; }
+    public ClampedStatValue Defence { get; }
     public StatValue AttackPower { get; }
     public StatValue MagicPower { get; }
     public StatValue AttackSpeed { get; }
@@ -95,6 +96,7 @@ public class CharacterModel
         _battleField = battleField;
 
         MaxHealth = new ClampedStatValue(data.BaseMaxHealth, 1);
+        Defence = new ClampedStatValue(data.BaseDefence);
         AttackPower = new StatValue(data.BaseAttackPower);
         MagicPower = new StatValue(data.BaseMagicPower);
         AttackSpeed = new StatValue(data.BaseAttackSpeed);
@@ -459,6 +461,7 @@ public class CharacterModel
                 case EffectType.Attack:
 
                     float dmg = (value * (1f + actionParams.BonusDMG));
+                    dmg *= 1 - Defence.FloatValue / (Defence.FloatValue + Database.Instance.DefenseScale);
                     if (isCritical) dmg *= 1f + CriticalDamage.FloatValue;
                     DamageResult dResult = target.TakeDamage(dmg.ToInt());
                     damageResult.HPDMG += dResult.HPDMG;

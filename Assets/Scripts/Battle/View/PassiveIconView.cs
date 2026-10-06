@@ -1,33 +1,42 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// パッシブ・状態異常のアイコン1つ分の表示。CharacterView.CreatePassiveIconで生成される
 /// </summary>
 public class PassiveIconView : MonoBehaviour, IPassiveIcon
 {
+    [SerializeField] Image _passiveSprite;
+    [SerializeField] Image _gauge;
+    [SerializeField] Color _enabledColor;
+    [SerializeField] Color _disabledColor;
+    [SerializeField] TextMeshProUGUI _text;
+
     public void Init(Sprite icon, PassiveIconType iconType)
     {
-        //TODO:アイコン画像の設定、種類(Buff/Debuff等)に応じた枠の設定
+        if (icon != null) _passiveSprite.sprite = icon;
+        //TODO:種類(Buff/Debuff等)に応じた枠の設定
     }
 
     public void SetVisible(bool set)
     {
-        //TODO:表示/非表示
+        gameObject.SetActive(set);
     }
 
     public void SetActive(bool set)
     {
-        //TODO:グレーアウト
+        _gauge.color = set ? _enabledColor : _disabledColor;
     }
 
     public void SetGauge(float value)
     {
-        //TODO:ゲージ表示
+        _gauge.fillAmount = value;
     }
 
     public void SetText(string text)
     {
-        //TODO:数字の表示
+        _text.text = text;
     }
 
     public void PlayTriggered()

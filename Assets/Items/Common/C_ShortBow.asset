@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c85925e1decc8f14ca14b0b0a517249e, type: 3}
+  m_Name: C_ShortBow
+  m_EditorClassIdentifier: 
+  PassiveName: "\u30B7\u30E7\u30FC\u30C8\u30DC\u30A6"
+  PassiveIcon: {fileID: 21300000, guid: 0deb0dc80a91b93459f6c3cabf872d97, type: 3}
+  StatusMod:
+    MaxHealthMul: 0
+    AttackPowerMul: 0
+    MagicPowerMul: 0
+    AttackSpeedMul: 0.25
+    CastSpeedMul: 0
+    CriticalChance: 0
+    Drain: 0
+    Stun: 0
+    Bind: 0
+    Fear: 0
+  AutoSubscribe: 0
+  TriggerCondition:
+    TriggerType: 0
+    ObserveType_Owner: 0
+    ObserveType_Target: 0
+  ActionDefinition:
+    TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
+    Effects: []
+  Rarity: 0

@@ -18,6 +18,13 @@ public class StatusEffectModel : PassiveModel
         Source = source;
     }
 
+    public override void Init()
+    {
+        base.Init();
+
+        _icon.SetVisible(true);
+    }
+
     /// <summary>スタック数を増減させ、実際に変化した量を返す</summary>
     public int ChangeStack(int amount)
     {
@@ -26,7 +33,7 @@ public class StatusEffectModel : PassiveModel
 
         Stack += changed;
         OnStackChanged(changed);
-        _icon.SetText(Stack.ToString());
+        if(Data.MaxStack > 1) _icon.SetText(Stack.ToString());
 
         return changed;
     }

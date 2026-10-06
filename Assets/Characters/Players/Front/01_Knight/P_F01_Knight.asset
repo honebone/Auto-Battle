@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterName: "\u9A0E\u58EB"
   Frontline: 0
+  CharaSprite: {fileID: 21300000, guid: 3fc2e5c50e5183f46a8cf61acebbe278, type: 3}
   BaseMaxHealth: 500
   BaseAttackPower: 17
   BaseMagicPower: 10
@@ -22,6 +23,8 @@ MonoBehaviour:
   BaseDrain: 0
   NomalAttackDefinition:
     TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
     Effects:
     - EffectType: 0
       ValueSource: 0
@@ -29,9 +32,11 @@ MonoBehaviour:
       StatusEffectToApply: {fileID: 0}
   ActiveSkillDefinition:
     TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
     Effects:
     - EffectType: 0
       ValueSource: 0
-      ValueRatio: 3
+      ValueRatio: 2.5
       StatusEffectToApply: {fileID: 0}
   PassiveSkillData: {fileID: 11400000, guid: f7d571fe76545934fbb96e6a1541015f, type: 2}

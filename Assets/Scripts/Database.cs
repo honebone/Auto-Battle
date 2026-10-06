@@ -3,6 +3,7 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "Database", menuName = "Scriptable Objects/Database")]
 public class Database : ScriptableObject
 {
+    public int DefenseScale = 100;
     /// <summary>基礎クリティカル率 (0.1 = 10%)</summary>
     public float BaseCriticalChance = 0.1f;
     /// <summary>基礎クリティカルダメージ倍率 (0.75 = +75%)</summary>
@@ -11,6 +12,8 @@ public class Database : ScriptableObject
     public float ShieldLossOvertime = 0.05f;
 
     public int BattleTimeLimit = 45;
+
+    public ColorRef ColorRef;
 
     private const string ResourcePath = "Database";
     private static Database _instance;
@@ -31,4 +34,19 @@ public class Database : ScriptableObject
             return _instance;
         }
     }
+}
+
+[System.Serializable]
+public class ColorRef
+{
+    public Color HP;
+    public Color AttackPower;
+    public Color MagicPownr;
+    public Color AttackSpeed;
+    public Color CastSpeed;
+    public Color CriticalChance;
+    public Color CriticalDamage;
+    public Color Drain;
+
+    public Color Shield;
 }
