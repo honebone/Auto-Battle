@@ -62,7 +62,7 @@ namespace test
             MagicPower = new StatValue(data.BaseMagicPower);
             AttackSpeed = new StatValue(data.BaseAttackSpeed);
             CastSpeed = new StatValue(data.BaseCastSpeed);
-            CriticalRate = new StatValue(data.BaseCriticalRate);
+            CriticalRate = new StatValue(Database.Instance.BaseCriticalChance);
             Drain = new StatValue(data.BaseDrain);
 
             foreach (var passiveDefinition in data.PassiveSkills)

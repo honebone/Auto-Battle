@@ -35,7 +35,7 @@ public enum FrontlineType { Front, Back, None } // ƒvƒŒƒCƒ„[ƒLƒƒƒ‰‚Ì‚İ—LŒøB“G‚
 /// <summary>
 /// ƒLƒƒƒ‰ƒNƒ^[‚ÌÃ“I‚ÈİŒvƒf[ƒ^BƒCƒ“ƒXƒyƒNƒ^‚©‚ç•ÒW‚·‚éB
 /// </summary>
-[CreateAssetMenu(menuName = "Character/CharacterData")]
+[CreateAssetMenu(menuName = "CharacterData/DataDriven")]
 public class CharacterData : ScriptableObject
 {
     public string CharacterName;
@@ -55,4 +55,9 @@ public class CharacterData : ScriptableObject
 
     public PassiveData PassiveSkillData;
     public List<SynergyParams> Synergies;
+
+    public virtual CharacterModel CreateModel(IBattleField battleField, CharaContext context)
+    {
+        return new CharacterModel(this, battleField, context);
+    }
 }

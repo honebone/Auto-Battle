@@ -69,7 +69,9 @@ public class CharacterModel
 
     private IBattleField _battleField;
     private PassiveModel _passiveSkill;
-    //TODO:アイテムのPassiveModelの管理
+    /// <summary>装着中のアイテム。装着順を保つ</summary>
+    private readonly List<PassiveModel> _items = new();
+    public IReadOnlyList<PassiveModel> Items => _items;
     /// <summary>付与されている状態異常。同じ種類でも発生源ごとに別インスタンス。再現性のため順序が確定するListで持つ</summary>
     private readonly List<StatusEffectModel> _statusEffects = new();
     public IReadOnlyList<StatusEffectModel> StatusEffects => _statusEffects;
@@ -85,7 +87,7 @@ public class CharacterModel
         get
         {
             if (_passiveSkill != null) yield return _passiveSkill;
-            //TODO:アイテムのPassiveModel
+            foreach (var item in _items) yield return item;
             foreach (var statusEffect in _statusEffects) yield return statusEffect;
         }
     }
@@ -138,7 +140,7 @@ public class CharacterModel
         _shieldTimer = 0;
 
         _passiveSkill?.OnBattleStart();
-        //TODO:アイテムのOnBattleStart
+        foreach (var item in _items) item.OnBattleStart();
     }
 
     /// <summary>
@@ -149,7 +151,7 @@ public class CharacterModel
         ClearStatusEffects();
 
         _passiveSkill?.OnBattleEnd();
-        //TODO:アイテムのOnBattleEnd
+        foreach (var item in _items) item.OnBattleEnd();
     }
 
     /// <summary>
@@ -164,6 +166,29 @@ public class CharacterModel
             _passiveSkill.Disable();
             PassiveDisabled?.Invoke(_passiveSkill);
         }
+
+        foreach (var item in _items)
+        {
+            item.Disable();
+            PassiveDisabled?.Invoke(item);
+        }
+        _items.Clear();
+    }
+
+    /// <summary>
+    /// アイテムを装着する。装着上限(Database.MaxItemSlots)に達している場合は装着せずfalseを返す
+    /// アイテムは取り外されないため、装着時に有効化して以降は常に有効のままにする
+    /// </summary>
+    public bool TryEquipItem(ItemData itemData)
+    {
+        if (itemData == null) return false;
+        if (_items.Count >= Database.Instance.MaxItemSlots) return false;
+
+        PassiveModel item = itemData.CreateModel(this, _battleField);
+        item.Init();
+        _items.Add(item);
+        PassiveEnabled?.Invoke(item);
+        return true;
     }
 
     private void ClearStatusEffects()
@@ -203,7 +228,7 @@ public class CharacterModel
         UpdateShieldLoss(deltaTime);
 
         _passiveSkill?.ManualUpdate(deltaTime);
-        //TODO:アイテムのPassiveModelのManualUpdate
+        foreach (var item in _items) item.ManualUpdate(deltaTime);
 
         // ManualUpdate中に状態異常が追加される可能性があるため、indexでループする
         for (int i = 0; i < _statusEffects.Count; i++) _statusEffects[i].ManualUpdate(deltaTime);
@@ -408,7 +433,7 @@ public class CharacterModel
 
         if (actionDefinition == null) throw new ArgumentNullException(nameof(actionDefinition));
 
-        if (actionDefinition.Effects == null || actionDefinition.Effects.Count == 0) return false;
+        if (actionDefinition.Effects == null) return false;// || actionDefinition.Effects.Count == 0
 
         CharacterModel target = GetTarget(actionDefinition.TargetRule);
 
@@ -529,6 +554,16 @@ public class CharacterModel
 
 
         return result;
+    }
+
+    public int GetStEStack(StatusEffectData target)
+    {
+        int stack = 0;
+        foreach(var StE in StatusEffects)
+        {
+            if (StE.Data == target) stack += StE.Stack;
+        }
+        return stack;
     }
 
     private protected CharacterModel GetTarget(TargetRule targetRule) => _battleField.GetTarget(this, targetRule);

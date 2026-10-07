@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd82989a9433a1842a2e2724e793578c, type: 3}
-  m_Name: P_B01_Hunter_Pasive
+  m_Name: PB01
   m_EditorClassIdentifier: 
   PassiveName: 
   PassiveIcon: {fileID: 0}

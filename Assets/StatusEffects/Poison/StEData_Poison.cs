@@ -31,7 +31,20 @@ public class StEModel_Poison : StatusEffectModel
         if (_removeTimer >= removeTime)
         {
             _removeTimer -= removeTime;
-            //TODO:å≈íËÉ_ÉÅÅ[ÉW
+            EffectDefinition effect = new EffectDefinition(
+                EffectType.FixedDamage,
+                BaseValueSource.FixedValue,
+                Stack
+                );
+
+            ActionParams actionParams = new ActionParams(
+                Source,
+                ActionSource.PassiveSkill,
+                _owner,
+                new System.Collections.Generic.List<EffectDefinition>() { effect }
+                );
+
+            Source.PerformAction(actionParams);
         }
 
         _icon.SetGauge(_removeTimer / removeTime);

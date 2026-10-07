@@ -79,13 +79,26 @@ public struct ActionPresentation
 /// SO化はせず、各スキル定義に埋め込むシリアライズ可能なデータとして扱う。
 /// </summary>
 [Serializable]
-public class EffectDefinition
+public struct EffectDefinition
 {
     public EffectType EffectType;
     public BaseValueSource ValueSource;
     [Tooltip("ValueSourceに対する倍率(1 = 100%)。FixedValueの場合は固定値")]
-    public float ValueRatio = 1f;
+    public float ValueRatio;
 
     [EnableIf("EffectType", EffectType.StatusEffectApply)]
     public StatusEffectData StatusEffectToApply;
+
+    public EffectDefinition(
+        EffectType effectType,
+        BaseValueSource valueSource,
+        float valueRatio,
+        StatusEffectData statusEffectToApply = null
+        )
+    {
+        EffectType = effectType;
+        ValueSource = valueSource;
+        ValueRatio = valueRatio;
+        StatusEffectToApply = statusEffectToApply;
+    }
 }

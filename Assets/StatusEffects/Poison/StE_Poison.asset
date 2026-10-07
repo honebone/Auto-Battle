@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 795bca917af06e04792283717da5cb99, type: 3}
   m_Name: StE_Poison
   m_EditorClassIdentifier: 
-  PassiveName: 
+  PassiveName: "\u6BD2"
   PassiveIcon: {fileID: 0}
   StatusMod:
     MaxHealthMul: 0
@@ -35,13 +35,13 @@ MonoBehaviour:
     VisualEffect: {fileID: 0}
     SoundEffect: {fileID: 0}
     Effects: []
-  MaxStack: 1
+  MaxStack: 10000
   IsBuff: 0
   Undeletable: 0
-  StackPolicy: 0
-  DamageInterval: 0
+  StackPolicy: 1
+  DamageInterval: 1
   Effect:
-    EffectType: 0
-    ValueSource: 0
+    EffectType: 5
+    ValueSource: 3
     ValueRatio: 1
     StatusEffectToApply: {fileID: 0}

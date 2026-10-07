@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,6 +11,10 @@ public class BattleTester : MonoBehaviour
     [Header("プレイヤー")]
     [SerializeField] private CharacterData _playerFront;
     [SerializeField] private CharacterData _playerBack;
+    [Tooltip("前衛に装着するアイテム")]
+    [SerializeField] private List<ItemData> _playerFrontItems = new();
+    [Tooltip("後衛に装着するアイテム")]
+    [SerializeField] private List<ItemData> _playerBackItems = new();
 
     [Header("敵")]
     [SerializeField] private CharacterData _enemyFront;
@@ -73,7 +78,7 @@ public class BattleTester : MonoBehaviour
         _presenter = null;
 
         _battle = new BattleModel(_overrideTimeLimit ? _timeLimitOverride : null);
-        _battle.SetCharacters(true, _playerFront, _playerBack);
+        _battle.SetCharacters(true, _playerFront, _playerBack, _playerFrontItems, _playerBackItems);
         _battle.SetCharacters(false, _enemyFront, _enemyBack);
 
         if (_enableLog) _logger = new BattleLogger(_battle, _logColors);

@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4127c67e7e48f904fbe47513d25f2510, type: 3}
-  m_Name: P_F01_Knight_Passive
+  m_Script: {fileID: 11500000, guid: 4884d807584d9b647847c614faad5c1f, type: 3}
+  m_Name: PB02
   m_EditorClassIdentifier: 
   PassiveName: 
+  PassiveIcon: {fileID: 0}
   MaxHealthMul: 0
   AttackPowerMul: 0
   MagicPowerMul: 0
@@ -20,16 +21,17 @@ MonoBehaviour:
   CastSpeedMul: 0
   CriticalChance: 0
   Drain: 0
-  AutoSubscribe: 0
-  TriggerType: 0
-  ObserveTargetType: 0
-  ObserveActionOwner: 0
+  AutoSubscribe: 1
+  TriggerCondition:
+    TriggerType: 1
+    ObserveType_Owner: 0
+    ObserveType_Target: 1
   ActionDefinition:
-    TargetRule: 8
+    TargetRule: 7
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
     Effects:
-    - EffectType: 2
-      ValueSource: 2
-      ValueRatio: 0.15
+    - EffectType: 1
+      ValueSource: 1
+      ValueRatio: 1
       StatusEffectToApply: {fileID: 0}
-  HPRatioTH: 0.5
-  BonusShield: 1

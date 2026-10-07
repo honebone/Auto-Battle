@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0bd2220fd0fcc34bb684fe882f0eeea, type: 3}
+  m_Name: PB04_Thief
+  m_EditorClassIdentifier: 
+  CharacterName: "\u76D7\u8CCA"
+  Frontline: 1
+  CharaSprite: {fileID: 0}
+  BaseMaxHealth: 300
+  BaseDefence: 0
+  BaseAttackPower: 16
+  BaseMagicPower: 12
+  BaseAttackSpeed: 0.7
+  BaseCastSpeed: 8.5
+  BaseDrain: 0
+  NomalAttackDefinition:
+    TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
+    Effects:
+    - EffectType: 0
+      ValueSource: 0
+      ValueRatio: 0.5
+      StatusEffectToApply: {fileID: 0}
+    - EffectType: 4
+      ValueSource: 1
+      ValueRatio: 0.3
+      StatusEffectToApply: {fileID: 11400000, guid: 3702d50480f2ecf4dadd322a4ba36a2d, type: 2}
+  ActiveSkillDefinition:
+    TargetRule: 0
+    VisualEffect: {fileID: 0}
+    SoundEffect: {fileID: 0}
+    Effects: []
+  PassiveSkillData: {fileID: 0}
+  Synergies: []
+  PoisonData: {fileID: 11400000, guid: 3702d50480f2ecf4dadd322a4ba36a2d, type: 2}
+  DamageRatio: 3

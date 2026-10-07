@@ -13,6 +13,9 @@ public class Database : ScriptableObject
 
     public int BattleTimeLimit = 45;
 
+    /// <summary>1キャラあたりのアイテム装備上限</summary>
+    public int MaxItemSlots = 4;
+
     public ColorRef ColorRef;
 
     private const string ResourcePath = "Database";

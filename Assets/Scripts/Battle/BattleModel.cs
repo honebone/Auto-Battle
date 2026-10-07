@@ -49,7 +49,14 @@ public class BattleModel : IBattleField
     /// <summary>
     /// 指定した陣営に前衛・後衛のキャラクターをセットする(既存のキャラクターは置き換え)
     /// </summary>
-    public void SetCharacters(bool isPlayer, CharacterData front, CharacterData back)
+    /// <param name="frontItems">前衛に装着するアイテム(省略可)</param>
+    /// <param name="backItems">後衛に装着するアイテム(省略可)</param>
+    public void SetCharacters(
+        bool isPlayer,
+        CharacterData front,
+        CharacterData back,
+        IReadOnlyList<ItemData> frontItems = null,
+        IReadOnlyList<ItemData> backItems = null)
     {
         List<CharacterModel> team = isPlayer ? _players : _enemies;
         // パッシブは常に購読しているため、置き換える前に解除しておく
@@ -57,8 +64,32 @@ public class BattleModel : IBattleField
         team.Clear();
 
         //GetTargetはリスト順を前衛優先として扱うため、前衛→後衛の順に追加する
-        if (front != null) team.Add(new CharacterModel(front, this, new CharaContext { IsPlayer = isPlayer, Position = 0 }));
-        if (back != null) team.Add(new CharacterModel(back, this, new CharaContext { IsPlayer = isPlayer, Position = 1 }));
+        if (front != null)
+        {
+            CharacterModel chara = front.CreateModel(this, new CharaContext { IsPlayer = isPlayer, Position = 0 });
+            EquipItems(chara, frontItems);
+            team.Add(chara);
+        }
+        if (back != null)
+        {
+            CharacterModel chara = back.CreateModel(this, new CharaContext { IsPlayer = isPlayer, Position = 1 });
+            EquipItems(chara, backItems);
+            team.Add(chara);
+        }
+    }
+
+    private void EquipItems(CharacterModel chara, IReadOnlyList<ItemData> items)
+    {
+        if (items == null) return;
+
+        foreach (var item in items)
+        {
+            if (item == null) continue;
+            if (!chara.TryEquipItem(item))
+            {
+                Debug.LogWarning($"{chara.DisplayName}: 装備上限({Database.Instance.MaxItemSlots})に達しているため {item.PassiveName} を装着できませんでした");
+            }
+        }
     }
 
     public void StartBattle()

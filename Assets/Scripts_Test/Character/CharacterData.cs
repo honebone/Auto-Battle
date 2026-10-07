@@ -11,7 +11,6 @@ namespace test
     /// <summary>
     /// キャラクターの静的な設計データ。インスペクタから編集する。
     /// </summary>
-    [CreateAssetMenu(menuName = "Character/CharacterData")]
     public class CharacterData : ScriptableObject
     {
         public string CharacterName;
@@ -23,7 +22,6 @@ namespace test
         public float BaseMagicPower;
         public float BaseAttackSpeed;
         public float BaseCastSpeed;
-        public float BaseCriticalRate;
         public float BaseDrain;
 
         public SkillDefinition NormalAttackDefinition;

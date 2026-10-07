@@ -1638,7 +1638,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerFront: {fileID: 11400000, guid: 069f2de66f9b95b4680c21da20239e50, type: 2}
-  _playerBack: {fileID: 11400000, guid: 0c378d13fc10b7e4592f276fbde22a1a, type: 2}
+  _playerBack: {fileID: 11400000, guid: 96a5614e18dd30f4c925d1852deed827, type: 2}
+  _playerFrontItems: []
+  _playerBackItems: []
   _enemyFront: {fileID: 11400000, guid: 49636ed970337ac4d9fef9c425d80b70, type: 2}
   _enemyBack: {fileID: 11400000, guid: a878c8440c91dc740975a20c43294596, type: 2}
   _overrideTimeLimit: 0
