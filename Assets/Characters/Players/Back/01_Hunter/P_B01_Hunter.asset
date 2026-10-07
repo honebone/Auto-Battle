@@ -16,6 +16,7 @@ MonoBehaviour:
   Frontline: 1
   CharaSprite: {fileID: 21300000, guid: 0295f60950677b74da35c425cec0b020, type: 3}
   BaseMaxHealth: 350
+  BaseDefence: 0
   BaseAttackPower: 20
   BaseMagicPower: 10
   BaseAttackSpeed: 0.65
@@ -40,3 +41,13 @@ MonoBehaviour:
       ValueRatio: 10
       StatusEffectToApply: {fileID: 11400000, guid: 2c581e48f3b5aae4c82689357029678f, type: 2}
   PassiveSkillData: {fileID: 11400000, guid: db3d4a4a017c9ac49b21257aa9439411, type: 2}
+  Synergies:
+  - Tag: 1
+    Supply: 4
+    Demand: 7
+  - Tag: 2
+    Supply: 1
+    Demand: 3
+  - Tag: 6
+    Supply: 2
+    Demand: 5
