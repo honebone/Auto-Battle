@@ -12,17 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db6f80ee23bf4c749bb656c4666d0cda, type: 3}
   m_Name: Database
   m_EditorClassIdentifier: 
+  DefenseScale: 100
   BaseCriticalChance: 0.1
   BaseCriticalDamageRate: 0.75
   ShieldLossOvertime: 0.05
   BattleTimeLimit: 45
+  MaxItemSlots: 4
   ColorRef:
-    HP: {r: 0.31764707, g: 0.9607843, b: 0.2784314, a: 1}
+    HP: {r: 0.10208259, g: 0.6981132, b: 0.37137896, a: 1}
     AttackPower: {r: 0, g: 0, b: 0, a: 0}
     MagicPownr: {r: 0, g: 0, b: 0, a: 0}
     AttackSpeed: {r: 1, g: 0.85882354, b: 0.49411765, a: 1}
-    CastSpeed: {r: 0, g: 0, b: 0, a: 0}
+    CastSpeed: {r: 1, g: 0.49411765, b: 0.7921569, a: 1}
     CriticalChance: {r: 0, g: 0, b: 0, a: 0}
     CriticalDamage: {r: 0, g: 0, b: 0, a: 0}
-    Drain: {r: 0, g: 0, b: 0, a: 0}
-    Shield: {r: 0, g: 0, b: 0, a: 0}
+    Drain: {r: 1, g: 0.13679248, b: 0.42866802, a: 1}
+    Damage: {r: 0.6603774, g: 0, b: 0, a: 1}
+    Heal: {r: 0.31764707, g: 0.9607843, b: 0.2784314, a: 1}
+    Critical: {r: 1, g: 0.851, b: 0.3820755, a: 1}
+    Shield: {r: 0.49411765, g: 1, b: 0.9607843, a: 1}
+    AP: {r: 1, g: 0.49411765, b: 0.7921569, a: 1}

@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,13 @@ public class CharacterView : MonoBehaviour
     [Header("パッシブアイコン")]
     [SerializeField] private PassiveIconView _passiveIconPrefab;
     [SerializeField] private Transform _passiveIconRoot;
+
+    [SerializeField] private EffectText _effectTextPrefab;
+    [SerializeField] private Transform _effectTextRoot;
+
+    [SerializeField] private float _effectTextOffset;
+    [SerializeField] private float _effectTextMaxSize = 4f;
+    [SerializeField] private float _effectTextCriticalSizeMul = 2f;
 
     [SerializeField] private SpriteRenderer _charaSprite;
     [SerializeField] private Image _hpBar;
@@ -98,6 +106,26 @@ public class CharacterView : MonoBehaviour
     {
         //TODO:result.PresentationのVisualEffectの生成、SoundEffectの再生
         //TODO:ダメージ・回復量などの数値表示
+        ColorRef color = Database.Instance.ColorRef;
+        if (result.DealtDamage())
+        {
+            float size = CalcEffectTextSize(result.HPDMG + result.ShieldDMG, result.Target.MaxHealth.FloatValue);
+            if (result.IsCritical) SpawnEffectText($"{result.HPDMG + result.ShieldDMG}".ColorStr(color.Critical), size * _effectTextCriticalSizeMul);
+            else SpawnEffectText($"{result.HPDMG + result.ShieldDMG}".ColorStr(color.Damage), size);
+        }
+
+        if (result.Healed()) SpawnEffectText(result.Heal.ColorStr(color.Critical), CalcEffectTextSize(result.Heal, result.Target.MaxHealth.FloatValue));
+        if (result.Shield > 0) SpawnEffectText(result.Shield.ColorStr(color.Shield), CalcEffectTextSize(result.Shield, result.Target.MaxHealth.FloatValue));
+
+        if (result.AP > 0) SpawnEffectText(result.AP.GetValueWithSign().ColorStr(color.AP), 0.75f);
+    }
+
+    private float CalcEffectTextSize(float value, float maxValue, float minSize = 1f) => Mathf.Max(value / maxValue * _effectTextMaxSize, minSize);
+
+    private void SpawnEffectText(string message, float sizeMul)
+    {
+        Vector2 pos = _effectTextRoot.position;
+        EffectText.Spawn(_effectTextPrefab, pos + Random.insideUnitCircle * _effectTextOffset, message, sizeMul, _isEnemy, _effectTextRoot);
     }
     #endregion
 

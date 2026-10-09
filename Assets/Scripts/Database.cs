@@ -51,5 +51,9 @@ public class ColorRef
     public Color CriticalDamage;
     public Color Drain;
 
+    public Color Damage;
+    public Color Heal;
+    public Color Critical;
     public Color Shield;
+    public Color AP;
 }
