@@ -12,6 +12,8 @@ public interface IPassiveIcon
     void SetGauge(float value);
     /// <summary>スタック数、残り発動回数などの数字を表示</summary>
     void SetText(string text);
+    /// <summary>スタック数、残り発動回数などの数字を表示</summary>
+    void SetText(int value);
     void PlayTriggered();
     /// <summary>パッシブが無効になった(状態異常が消えた等)ときに呼ばれ、アイコンを破棄する</summary>
     void Release();
@@ -31,6 +33,7 @@ public class NullPassiveIcon : IPassiveIcon
     public void SetActive(bool set) { }
     public void SetGauge(float value) { }
     public void SetText(string text) { }
+    public void SetText(int value) { }
     public void PlayTriggered() { }
     public void Release() { }
 }

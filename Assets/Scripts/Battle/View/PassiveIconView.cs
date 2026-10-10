@@ -39,6 +39,11 @@ public class PassiveIconView : MonoBehaviour, IPassiveIcon
         _text.text = text;
     }
 
+    public void SetText(int value)
+    {
+        _text.text = value.ToString();
+    }
+
     public void PlayTriggered()
     {
         //TODO:発動時の演出

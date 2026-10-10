@@ -38,7 +38,7 @@ MonoBehaviour:
     Effects:
     - EffectType: 4
       ValueSource: 3
-      ValueRatio: 10
+      ValueRatio: 1
       StatusEffectToApply: {fileID: 11400000, guid: 2c581e48f3b5aae4c82689357029678f, type: 2}
   PassiveSkillData: {fileID: 11400000, guid: db3d4a4a017c9ac49b21257aa9439411, type: 2}
   Synergies: []

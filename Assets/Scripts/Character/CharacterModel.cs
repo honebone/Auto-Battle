@@ -547,6 +547,7 @@ public class CharacterModel
         if (result.ActionSource == ActionSource.NormalAttack) _battleField.InvokeTriggerAction(TriggerType.OnNormalAttackDealt, result);
         if (result.ActionSource == ActionSource.ActiveSkill) _battleField.InvokeTriggerAction(TriggerType.OnActiveSkillCast, result);
         if (result.DealtDamage()) _battleField.InvokeTriggerAction(TriggerType.OnDamageDealt, result);
+        if (result.IsCritical) _battleField.InvokeTriggerAction(TriggerType.OnCritical, result);
         if (result.Healed()) _battleField.InvokeTriggerAction(TriggerType.OnHealDealt, result);
         if (result.Shield > 0) _battleField.InvokeTriggerAction(TriggerType.OnShieldGranted, result);
         if (result.StatusEffectStack > 0) _battleField.InvokeTriggerAction(TriggerType.OnStatusEffectApplied, result);

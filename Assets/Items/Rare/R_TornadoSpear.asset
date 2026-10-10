@@ -9,34 +9,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b97bf20bcbc597a4ba31ae1e608eab66, type: 3}
-  m_Name: StE_Hunter
+  m_Script: {fileID: 11500000, guid: c85925e1decc8f14ca14b0b0a517249e, type: 3}
+  m_Name: R_TornadoSpear
   m_EditorClassIdentifier: 
-  PassiveName: "\u901F\u5C04"
+  PassiveName: "\u7ADC\u5DFB\u306E\u69CD"
   PassiveIcon: {fileID: 0}
   StatusMod:
     MaxHealthMul: 0
     AttackPowerMul: 0
     MagicPowerMul: 0
-    AttackSpeedMul: 4
+    AttackSpeedMul: 0.3
     CastSpeedMul: 0
     CriticalChance: 0
     Drain: 0
     Stun: 0
     Bind: 0
     Fear: 0
-  AutoSubscribe: 0
+  AutoSubscribe: 1
   TriggerCondition:
-    TriggerType: 0
+    TriggerType: 1
     ObserveType_Owner: 0
-    ObserveType_Target: 0
+    ObserveType_Target: 1
   ActionDefinition:
-    TargetRule: 0
+    TargetRule: 8
     VisualEffect: {fileID: 0}
     SoundEffect: {fileID: 0}
-    Effects: []
-  MaxStack: 100
-  IsBuff: 1
-  Undeletable: 1
-  StackPolicy: 0
-  RemoveTime: 1.25
+    Effects:
+    - EffectType: 3
+      ValueSource: 3
+      ValueRatio: 10
+      StatusEffectToApply: {fileID: 0}
+  Rarity: 1

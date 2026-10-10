@@ -13,23 +13,16 @@ public enum TriggerType
     OnActiveSkillCast,
 
     OnDamageDealt,
-    //OnDamageReceived,
-
     OnHealDealt,
-    //OnHealReceived,
 
     OnShieldGranted,
-    //OnShieldReceived,
 
     OnStatusEffectApplied,
-    //OnStatusEffectReceived,
 
     OnKilled,
-    //OnDied,
+    OnCritical,
 
     NoAction = BattleStart,
-    //Active = OnNormalAttackDealt | OnActiveSkillCast | OnDamageDealt | OnHealDealt | OnShieldGranted | OnStatusEffectApplied | OnKilled, //何かをした
-    //Passive = OnDamageReceived | OnHealReceived | OnShieldReceived | OnStatusEffectApplied | OnDied, //何かをされた
 }
 
 public enum CharaRelation

@@ -29,11 +29,15 @@ public class PassiveModel
     }
 
     public virtual void ModifyAction(ref ActionParams actionParams) { }
-
+    public bool CheckTrigger(TriggerType triggerType, ActionResult result,TriggerCondition triggerCondition)
+    {
+        if (triggerType != triggerCondition.TriggerType) return false;
+        if (!_battleField.CheckObserveTarget(_owner, result, triggerCondition)) return false;
+        return true;
+    }
     public void TriggerActionFromDefinition(TriggerType triggerType, ActionResult result)
     {
-        if (triggerType != _data.TriggerCondition.TriggerType) return;
-        if (!_battleField.CheckObserveTarget(_owner, result, _data.TriggerCondition)) return;
+        if (!CheckTrigger(triggerType, result,_data.TriggerCondition)) return;
         _owner.PerformActionsFromDefinition(ActionSource.PassiveSkill, _data.ActionDefinition);
     }
     public virtual void OnBattleStart() { }
