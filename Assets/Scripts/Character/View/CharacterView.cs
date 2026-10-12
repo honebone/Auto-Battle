@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System.Drawing;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,9 +22,17 @@ public class CharacterView : MonoBehaviour
 
     [SerializeField] private SpriteRenderer _charaSprite;
     [SerializeField] private Image _hpBar;
+    [SerializeField] private Image _damageBar;
     [SerializeField] private Image _shieldBar;
     [SerializeField] private Image _naBar;
     [SerializeField] private Image _castBar;
+
+    [SerializeField] private float _damageMinRatio = 0.05f;
+    [SerializeField] private float _damageMaxRatio = 0.5f;
+    [SerializeField] private float _damageMinDur;
+    [SerializeField] private float _damageMaxDur;
+    [SerializeField] private Color _damageMinColor;
+    [SerializeField] private Color _damageMaxColor;
 
     [SerializeField] private float _naDur;
     [SerializeField] private float _naMove;
@@ -38,6 +45,7 @@ public class CharacterView : MonoBehaviour
 
     private Sequence _seq_na;
     private Sequence _seq_cast;
+    private Sequence _seq_damage;
 
     /// <summary>ÉLÉÉÉâÇ…âûÇ∂ÇΩå©ÇΩñ⁄ÇÃê›íË</summary>
     public void Setup(CharacterData data)
@@ -55,7 +63,23 @@ public class CharacterView : MonoBehaviour
     #region ÉQÅ[ÉW
     public void SetHP(int current, int max)
     {
-        _hpBar.fillAmount = (float)current / max;
+        float fill = (float)current / max;
+        _hpBar.fillAmount = fill;
+        if (_seq_damage != null) _seq_damage.Kill();
+        if (fill >= _damageBar.fillAmount) _damageBar.fillAmount = fill;
+        else
+        {
+            float diff = Mathf.InverseLerp(_damageMinRatio, _damageMaxRatio, _damageBar.fillAmount - fill);
+            Debug.Log(diff);
+            float dur = Mathf.Lerp(_damageMinDur, _damageMaxDur, diff);
+            Color color = Color.Lerp(_damageMinColor, _damageMaxColor, diff);
+            _damageBar.color = color;
+
+            _seq_damage = DOTween.Sequence();
+            _seq_damage.Append(_damageBar.DOFillAmount(fill, dur).SetEase(Ease.InQuart));
+            _seq_damage.Join(_damageBar.DOColor(_damageMinColor, dur).SetEase(Ease.InQuart));
+            _seq_damage.Play();
+        }
     }
 
     public void SetShield(int current, int max)

@@ -6,6 +6,8 @@ public class PassiveModel
     private protected PassiveData _data;
     private protected IBattleField _battleField;
 
+    public virtual bool IsIconVisibleDefault => false;
+
     /// <summary>Viewが無い場合はNullPassiveIconのまま。派生クラスはViewの有無を気にせず呼んでよい</summary>
     private protected IPassiveIcon _icon = NullPassiveIcon.Instance;
     private protected virtual PassiveIconType IconType => PassiveIconType.Other;
@@ -68,6 +70,8 @@ public class PassiveModel
         _icon.Release();
         _icon = icon ?? NullPassiveIcon.Instance;
         _icon.Init(_data.PassiveIcon, IconType);
+
+        _icon.SetVisible(IsIconVisibleDefault);
     }
 
     private protected void Subscribe()

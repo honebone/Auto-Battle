@@ -38,10 +38,14 @@ public class PM_P_Hunter : PassiveModel
             else SetCount(_naCount + 1);         
         }
     }
-    public override void OnBattleStart()
-    {
-        _icon.SetVisible(true);
-    }
+
+    public override bool IsIconVisibleDefault => true;
+    //public override void Init()
+    //{
+    //    base.Init();
+
+    //    _icon.SetVisible(true);
+    //}
 
     public override void OnBattleEnd()
     {

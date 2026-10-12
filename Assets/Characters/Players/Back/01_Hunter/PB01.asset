@@ -20,8 +20,12 @@ MonoBehaviour:
     MagicPowerMul: 0
     AttackSpeedMul: 0
     CastSpeedMul: 0
+    DefenceFlat: 0
     CriticalChance: 0
     Drain: 0
+    BonusHealingDealt: 0
+    BonusHealingReceieved: 0
+    BonusShieldGained: 0
     Stun: 0
     Bind: 0
     Fear: 0

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[CreateAssetMenu(menuName = "ItemData/ModifyStatOnTrigger")]
 public class ID_ModifyStatOnTrigger : ItemData
 {
     public int MaxActivation;
@@ -19,6 +20,9 @@ public class IM_ModifyStatOnTrigger : PassiveModel
     private int _activateCount;
 
     public ID_ModifyStatOnTrigger Data => (ID_ModifyStatOnTrigger)_data;
+
+    public override bool IsIconVisibleDefault => true;
+
     public IM_ModifyStatOnTrigger(CharacterModel owner, PassiveData data, IBattleField battleField) : base(owner, data, battleField) { }
 
     public override void OnTriggered(TriggerType triggerType, ActionResult action)
@@ -28,22 +32,18 @@ public class IM_ModifyStatOnTrigger : PassiveModel
         _count++;
         if(_count == Data.ActivateCountReq)
         {
+            _count = 0;
             _activateCount++;
             _icon.SetText(_activateCount);
+            _owner.ApplyStatusModifier(Data.StatusModOnTrigger, 1);
         }
-        if (Data.ActivateCountReq > 1) _icon.SetGauge((float)_activateCount / Data.MaxActivation);
-
-        _owner.ApplyStatusModifier(Data.StatusModOnTrigger, 1);
-    }
-
-    public override void OnBattleStart()
-    {
-        base.OnBattleStart();
+        if (Data.ActivateCountReq >= 1) _icon.SetGauge((float)_count / Data.ActivateCountReq);
     }
 
     public override void OnBattleEnd()
     {
-        if(_activateCount > 0) _owner.ApplyStatusModifier(Data.StatusModOnTrigger, -_activateCount);
+        _count = 0;
+        if (_activateCount > 0) _owner.ApplyStatusModifier(Data.StatusModOnTrigger, -_activateCount);
         _activateCount = 0;
     }
 }

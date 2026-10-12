@@ -13,8 +13,13 @@ public class CharaStatusMod
     public float CastSpeedMul;
 
     [Header("実数補正 (0.1 = 10%)")]
+    public float DefenceFlat;
     public float CriticalChance;
     public float Drain;
+
+    public float BonusHealingDealt;
+    public float BonusHealingReceieved;
+    public float BonusShieldGained;
 
     public bool Stun;
     public bool Bind;

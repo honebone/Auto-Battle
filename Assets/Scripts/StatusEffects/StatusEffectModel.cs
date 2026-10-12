@@ -13,17 +13,11 @@ public class StatusEffectModel : PassiveModel
     public bool IsExpired => Stack <= 0;
 
     private protected override PassiveIconType IconType => Data.IsBuff ? PassiveIconType.Buff : PassiveIconType.Debuff;
+    public override bool IsIconVisibleDefault => true;
 
     public StatusEffectModel(CharacterModel owner, CharacterModel source, StatusEffectData data, IBattleField battleField) : base(owner, data, battleField)
     {
         Source = source;
-    }
-
-    public override void Init()
-    {
-        base.Init();
-
-        _icon.SetVisible(true);
     }
 
     /// <summary>スタック数を増減させ、実際に変化した量を返す</summary>

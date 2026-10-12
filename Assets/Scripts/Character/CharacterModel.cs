@@ -32,6 +32,10 @@ public class CharacterModel
     public StatValue CriticalDamage { get; }
     public StatValue Drain { get; }
 
+    public float BonusHealingDealt;
+    public float BonusHealingReceieved;
+    public float BonusShieldGained;
+
     public float CurrentHpRatio => _hp.Value / MaxHealth.FloatValue;
     public bool IsAlive => _hp.Value > 0;
 
@@ -98,7 +102,7 @@ public class CharacterModel
         _battleField = battleField;
 
         MaxHealth = new ClampedStatValue(data.BaseMaxHealth, 1);
-        Defence = new ClampedStatValue(data.BaseDefence);
+        Defence = new ClampedStatValue(data.BaseDefence, 0, false);
         AttackPower = new StatValue(data.BaseAttackPower);
         MagicPower = new StatValue(data.BaseMagicPower);
         AttackSpeed = new StatValue(data.BaseAttackSpeed);
@@ -393,8 +397,13 @@ public class CharacterModel
         AttackSpeed.AddMultiplier(mod.AttackSpeedMul * scale);
         CastSpeed.AddMultiplier(mod.CastSpeedMul * scale);
 
+        Defence.AddFlat(mod.DefenceFlat * scale);
         CriticalChance.AddFlat(mod.CriticalChance * scale);
         Drain.AddFlat(mod.Drain * scale);
+
+        BonusHealingDealt += mod.BonusHealingDealt * scale;
+        BonusHealingReceieved += mod.BonusHealingReceieved * scale;
+        BonusShieldGained += mod.BonusShieldGained * scale;
 
         if (mod.Stun) _stun.Value += (int)scale;
         if (mod.Bind) _bind.Value += (int)scale;
@@ -491,18 +500,24 @@ public class CharacterModel
                 case EffectType.Attack:
 
                     float dmg = (value * (1f + actionParams.BonusDMG));
-                    dmg *= 1 - Defence.FloatValue / (Defence.FloatValue + Database.Instance.DefenseScale);
+                    dmg *= Database.Instance.DefenseScale / (target.Defence.FloatValue + Database.Instance.DefenseScale);
                     if (isCritical) dmg *= 1f + CriticalDamage.FloatValue;
-                    DamageResult dResult = target.TakeDamage(dmg.ToInt());
-                    damageResult.HPDMG += dResult.HPDMG;
-                    damageResult.ShieldDMG += dResult.ShieldDMG;
-                    damageResult.Killed |= dResult.Killed;
+
+                    if(dmg.ToInt() > 0)
+                    {
+                        DamageResult dResult = target.TakeDamage(dmg.ToInt());
+                        damageResult.HPDMG += dResult.HPDMG;
+                        damageResult.ShieldDMG += dResult.ShieldDMG;
+                        damageResult.Killed |= dResult.Killed;
+                    }
                     break;
                 case EffectType.Heal:
-                    heal += target.Heal((value * (1f + actionParams.BonusHeal)).ToInt());
+                    float h = value * (1f + BonusHealingDealt + target.BonusHealingReceieved + actionParams.BonusHeal);
+                    if (h > 0) heal += target.Heal(h.ToInt());
                     break;
                 case EffectType.ShieldGrant:
-                    shield += target.GrantShield((value * (1f + actionParams.BonusShield)).ToInt());
+                    float s = value * (1f + target.BonusShieldGained + actionParams.BonusShield);
+                    if (s > 0) shield += target.GrantShield(s.ToInt());
                     break;
                 case EffectType.SpChange:
                     ap += target.ChangeAP(effect.Value);
