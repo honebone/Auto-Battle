@@ -93,7 +93,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &433055333956942512
 RectTransform:
   m_ObjectHideFlags: 0
@@ -130,9 +130,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _passiveSprite: {fileID: 2908119164648848670}
+  _back: {fileID: 1072311126901087285}
   _gauge: {fileID: 9097216419697885984}
-  _enabledColor: {r: 1, g: 1, b: 0.4292453, a: 1}
-  _disabledColor: {r: 1, g: 1, b: 1, a: 1}
+  _colors_back:
+  - {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
+  - {r: 0.83137256, g: 0.69803923, b: 0.21568628, a: 1}
+  - {r: 0.21568628, g: 0.21568628, b: 0.21568628, a: 1}
+  _colors_gauge:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 1, b: 0.42745098, a: 1}
+  - {r: 0.58431375, g: 0.58431375, b: 0.58431375, a: 1}
   _text: {fileID: 1940260127303763716}
 --- !u!222 &3128111026610929979
 CanvasRenderer:
@@ -155,7 +162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+  m_Color: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

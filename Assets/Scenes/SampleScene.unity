@@ -1640,11 +1640,8 @@ MonoBehaviour:
   _playerFront: {fileID: 11400000, guid: 069f2de66f9b95b4680c21da20239e50, type: 2}
   _playerBack: {fileID: 11400000, guid: 0c378d13fc10b7e4592f276fbde22a1a, type: 2}
   _playerFrontItems:
-  - {fileID: 11400000, guid: 2c3167b17d505c74daac0376f78b93a6, type: 2}
-  _playerBackItems:
-  - {fileID: 11400000, guid: b22c1512f58cae3489dc23eb4efb685a, type: 2}
-  - {fileID: 11400000, guid: 344f7bb08ac9fb34b8b5fe3a74ff380d, type: 2}
-  - {fileID: 11400000, guid: 66f9c19d8a4550c48bef1e3256982d9c, type: 2}
+  - {fileID: 11400000, guid: ad3a7c0448e8e9e41a65d6f0475d6b07, type: 2}
+  _playerBackItems: []
   _enemyFront: {fileID: 11400000, guid: 49636ed970337ac4d9fef9c425d80b70, type: 2}
   _enemyBack: {fileID: 11400000, guid: a878c8440c91dc740975a20c43294596, type: 2}
   _overrideTimeLimit: 0

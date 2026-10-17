@@ -1,13 +1,13 @@
 using UnityEngine;
 
 public enum PassiveIconType { Other, Buff, Debuff, Unique }
+public enum PassiveIconState { Default, Enabled, Disabled }
 
 public interface IPassiveIcon
 {
     void Init(Sprite icon, PassiveIconType iconType);
     void SetVisible(bool set);
-    /// <summary>クールダウン中、条件未達等の場合はfalseにしてグレーアウト</summary>
-    void SetActive(bool set);
+    void SetActiveState(PassiveIconState state);
     /// <summary>クールダウン、発動までのカウントを0-1の小数で渡してゲージで表現</summary>
     void SetGauge(float value);
     /// <summary>スタック数、残り発動回数などの数字を表示</summary>
@@ -30,7 +30,7 @@ public class NullPassiveIcon : IPassiveIcon
 
     public void Init(Sprite icon, PassiveIconType iconType) { }
     public void SetVisible(bool set) { }
-    public void SetActive(bool set) { }
+    public void SetActiveState(PassiveIconState state) { }
     public void SetGauge(float value) { }
     public void SetText(string text) { }
     public void SetText(int value) { }

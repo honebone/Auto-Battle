@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 /// <summary>
 /// パッシブ・状態異常のアイコン1つ分の表示。CharacterView.CreatePassiveIconで生成される
@@ -8,9 +9,10 @@ using TMPro;
 public class PassiveIconView : MonoBehaviour, IPassiveIcon
 {
     [SerializeField] Image _passiveSprite;
+    [SerializeField] Image _back;
     [SerializeField] Image _gauge;
-    [SerializeField] Color _enabledColor;
-    [SerializeField] Color _disabledColor;
+    [SerializeField] List<Color> _colors_back;
+    [SerializeField] List<Color> _colors_gauge;
     [SerializeField] TextMeshProUGUI _text;
 
     public void Init(Sprite icon, PassiveIconType iconType)
@@ -24,9 +26,10 @@ public class PassiveIconView : MonoBehaviour, IPassiveIcon
         gameObject.SetActive(set);
     }
 
-    public void SetActive(bool set)
+    public void SetActiveState(PassiveIconState state)
     {
-        _gauge.color = set ? _enabledColor : _disabledColor;
+        _back.color = _colors_back[(int)state];
+        _gauge.color = _colors_gauge[(int)state];
     }
 
     public void SetGauge(float value)

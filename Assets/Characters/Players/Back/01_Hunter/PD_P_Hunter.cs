@@ -56,6 +56,6 @@ public class PM_P_Hunter : PassiveModel
     {
         _naCount = value;
         _icon.SetGauge((float)value / Data.MaxNACount);
-        _icon.SetActive(value == Data.MaxNACount);
+        _icon.SetActiveState(value == Data.MaxNACount ? PassiveIconState.Enabled : PassiveIconState.Default);
     }
 }

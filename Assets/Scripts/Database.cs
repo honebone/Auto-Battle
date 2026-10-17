@@ -18,6 +18,8 @@ public class Database : ScriptableObject
 
     public ColorRef ColorRef;
 
+    public List<ItemData> Items;
+
     private const string ResourcePath = "Database";
     private static Database _instance;
 

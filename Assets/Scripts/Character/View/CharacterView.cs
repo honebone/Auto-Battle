@@ -70,7 +70,6 @@ public class CharacterView : MonoBehaviour
         else
         {
             float diff = Mathf.InverseLerp(_damageMinRatio, _damageMaxRatio, _damageBar.fillAmount - fill);
-            Debug.Log(diff);
             float dur = Mathf.Lerp(_damageMinDur, _damageMaxDur, diff);
             Color color = Color.Lerp(_damageMinColor, _damageMaxColor, diff);
             _damageBar.color = color;
